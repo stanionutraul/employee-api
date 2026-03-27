@@ -1,0 +1,22 @@
+services:
+  db:
+    container_name: postgres-gym-app
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: gym_user
+      POSTGRES_PASSWORD: gym_pass
+      POSTGRES_DB: gym_db
+      PGDATA: /data/postgres
+    volumes:
+      - db:/data/postgres
+    ports:
+      - "5433:5432"
+    networks:
+      - db
+    restart: unless-stopped
+
+networks:
+  db:
+    driver: bridge
+volumes:
+  db:
