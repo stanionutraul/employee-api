@@ -1,11 +1,15 @@
 package com.stanionutraul.service;
 
 
+import com.stanionutraul.dto.UserRequestDTO;
+import com.stanionutraul.dto.UserResponseDTO;
+import com.stanionutraul.mapper.UserMapper;
 import com.stanionutraul.model.User;
 import com.stanionutraul.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -16,12 +20,14 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public List<User> getAllUsers(){
-        return userRepository.findAll();
+    public List<UserResponseDTO> getAllUsers(){
+        return userRepository.findAll().stream().map(user -> UserMapper.toDTO(user)).collect(Collectors.toList());
     }
 
-    public void insertUser(User user){
-        userRepository.save(user);
+    public UserResponseDTO insertUser(UserRequestDTO dto) {
+        User user = UserMapper.toEntity(dto);
+        User savedUser = userRepository.save(user);
+        return UserMapper.toDTO(savedUser);
     }
 
     public void deleteUser(Integer id) {
@@ -32,18 +38,21 @@ public class UserService {
 
     }
 
-    public User updateUser(Integer id, User updatedUser){
-        User existingUser = userRepository.findById(id).orElseThrow(()-> new RuntimeException("User with id " + id + " not found"));
+    public UserResponseDTO updateUser(Integer id, UserRequestDTO dto) {
+        User existingUser = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
 
-        existingUser.setName(updatedUser.getName());
-        existingUser.setEmail(updatedUser.getEmail());
-        return userRepository.save(existingUser);
+        existingUser.setName(dto.getName());
+        existingUser.setEmail(dto.getEmail());
+        User updateed = userRepository.save(existingUser);
+        return UserMapper.toDTO(updateed);
     }
 
 
-    public User getUserById(Integer id){
-        return  userRepository.findById(id).orElseThrow(() -> new IllegalStateException(id + "User not found"));
-    }
+   public UserResponseDTO getUserById(Integer id) {
+        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+
+        return UserMapper.toDTO(user);
+   }
 
 
 }

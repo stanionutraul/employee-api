@@ -1,8 +1,11 @@
 package com.stanionutraul.controller;
 
 
+import com.stanionutraul.dto.UserRequestDTO;
+import com.stanionutraul.dto.UserResponseDTO;
 import com.stanionutraul.model.User;
 import com.stanionutraul.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,29 +20,33 @@ public class UserController {
     }
 
     @GetMapping
-    public List<User> getAllUsers() {
+    public List<UserResponseDTO> getAllUsers() {
         return userService.getAllUsers();
     }
 
     @PostMapping
-    public void addUser(@RequestBody User user){
-        userService.insertUser(user);
+    public UserResponseDTO addUser(@RequestBody  @Valid UserRequestDTO dto) {
+        return userService.insertUser(dto);
     }
 
     @GetMapping("{id}")
-    public User getUserById(@PathVariable Integer id) {
+    public UserResponseDTO getUserById(@PathVariable Integer id) {
         return userService.getUserById(id);
     }
 
     @PutMapping("{id}")
-    public User updateUser(@PathVariable Integer id, @RequestBody User user) {
-       return userService.updateUser(id,user);
+    public UserResponseDTO updateUser(@PathVariable Integer id, @RequestBody @Valid UserRequestDTO dto) {
+
+       return userService.updateUser(id,dto);
     }
 
     @DeleteMapping("{id}")
     public void deleteUser(@PathVariable Integer id) {
         userService.deleteUser(id);
     }
+
+
+
 
 
 
