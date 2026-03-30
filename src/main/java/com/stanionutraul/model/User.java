@@ -14,6 +14,18 @@ public class User {
     private String name;
     private String email;
 
+    @ManyToOne
+    @JoinColumn(name = "membership_id")
+    private Membership membership;
+
+    public Membership getMembership() {
+        return membership;
+    }
+
+    public void setMembership(Membership membership) {
+        this.membership = membership;
+    }
+
     public User() {
     }
 

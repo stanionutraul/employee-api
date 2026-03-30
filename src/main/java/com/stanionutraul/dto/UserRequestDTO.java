@@ -12,6 +12,16 @@ public class UserRequestDTO {
     @NotBlank(message = "Email is required")
     private String email;
 
+    private Integer membershipId;
+
+    public Integer getMembershipId() {
+        return membershipId;
+    }
+
+    public void setMembershipId(Integer membershipId) {
+        this.membershipId = membershipId;
+    }
+
     public String getName() {
         return name;
     }
