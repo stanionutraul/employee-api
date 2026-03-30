@@ -18,6 +18,11 @@ public class UserMapper {
         dto.setId(user.getId());
         dto.setName(user.getName());
         dto.setEmail(user.getEmail());
+        if (user.getMembership() != null) {
+            dto.setMembership(
+                    MembershipMapper.toDTO(user.getMembership())
+            );
+        }
         return dto;
     }
 

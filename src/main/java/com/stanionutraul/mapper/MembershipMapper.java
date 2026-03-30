@@ -6,19 +6,20 @@ import com.stanionutraul.model.Membership;
 
 public class MembershipMapper {
 
-    public static MembershipResponseDTO toDTO(Membership membership) {
+    public static MembershipResponseDTO toDTO(Membership m) {
         MembershipResponseDTO dto = new MembershipResponseDTO();
-        dto.setType(membership.getType());
-        dto.setPrice(membership.getPrice());
-        dto.setDuration(membership.getDuration());
+        dto.setId(m.getId());
+        dto.setType(m.getType());
+        dto.setPrice(m.getPrice());
+        dto.setDuration(m.getDuration());
         return dto;
     }
 
     public static Membership toEntity(MembershipRequestDTO dto) {
-        Membership membership = new Membership();
-        membership.setType(dto.getType());
-        membership.setPrice(dto.getPrice());
-        membership.setDuration(dto.getDuration());
-        return membership;
+        Membership m = new Membership();
+        m.setType(dto.getType());
+        m.setPrice(dto.getPrice());
+        m.setDuration(dto.getDuration());
+        return m;
     }
 }

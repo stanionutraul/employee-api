@@ -1,18 +1,16 @@
 package com.stanionutraul.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
 public class MembershipRequestDTO {
-    private Integer Id;
+    @NotBlank(message = "Type is required")
     private String type;
+    @NotNull(message = "Price is required")
     private Double price;
+    @NotNull(message = "Duration is required")
     private Integer duration;
 
-    public Integer getId() {
-        return Id;
-    }
-
-    public void setId(Integer id) {
-        Id = id;
-    }
 
     public String getType() {
         return type;

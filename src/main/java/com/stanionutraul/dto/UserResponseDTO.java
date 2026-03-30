@@ -5,6 +5,16 @@ public class UserResponseDTO {
     private String name;
     private String email;
 
+    public MembershipResponseDTO getMembership() {
+        return membership;
+    }
+
+    public void setMembership(MembershipResponseDTO membership) {
+        this.membership = membership;
+    }
+
+    private MembershipResponseDTO membership;
+
     public Integer getId() {
         return id;
     }
