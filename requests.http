@@ -121,7 +121,49 @@ GET http://localhost:8080/api/v1/users
 ### GET MEMBERS
 GET http://localhost:8080/api/v1/memberships
 
-### CREATE
+### =========================
+### TRAINER FLOW
+### =========================
+
+### Create Trainer 1
+POST http://localhost:8080/api/v1/trainers
+Content-Type: application/json
+
+{
+  "name": "Alex Coach"
+}
+
+###
+
+### Create Trainer 2
+POST http://localhost:8080/api/v1/trainers
+Content-Type: application/json
+
+{
+  "name": "Maria PT"
+}
+
+###
+
+### Get all trainers
+GET http://localhost:8080/api/v1/trainers
+
+###
+
+### Get trainer by id
+GET http://localhost:8080/api/v1/trainers/1
+
+###
+
+### Delete trainer (optional test)
+DELETE http://localhost:8080/api/v1/trainers/2
+
+
+### =========================
+### WORKOUT FLOW
+### =========================
+
+### Create Workout (linked to Trainer 1)
 POST http://localhost:8080/api/v1/workouts
 Content-Type: application/json
 
@@ -131,21 +173,58 @@ Content-Type: application/json
   "trainerId": 1
 }
 
-### GET ALL
+###
+
+### Create another Workout
+POST http://localhost:8080/api/v1/workouts
+Content-Type: application/json
+
+{
+  "name": "Pull Day",
+  "description": "Back + Biceps",
+  "trainerId": 1
+}
+
+###
+
+### Create Workout for Trainer 2
+POST http://localhost:8080/api/v1/workouts
+Content-Type: application/json
+
+{
+  "name": "Leg Day",
+  "description": "Quads + Hamstrings",
+  "trainerId": 2
+}
+
+###
+
+### Get all workouts
 GET http://localhost:8080/api/v1/workouts
 
-### GET BY ID
+###
+
+### Get workout by id
 GET http://localhost:8080/api/v1/workouts/1
 
-### UPDATE
+###
+
+### Update workout
 PUT http://localhost:8080/api/v1/workouts/1
 Content-Type: application/json
 
 {
-  "name": "Push Day Updated",
+  "name": "Push Day UPDATED",
   "description": "Chest + Shoulders",
   "trainerId": 1
 }
 
-### DELETE
-DELETE http://localhost:8080/api/v1/workouts/1
+###
+
+### Delete workout
+DELETE http://localhost:8080/api/v1/workouts/2
+
+###
+
+### Get all workouts again
+GET http://localhost:8080/api/v1/workouts
