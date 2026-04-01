@@ -304,5 +304,66 @@ DELETE http://localhost:8080/api/v1/exercises/3
 ### Get all exercises again
 GET http://localhost:8080/api/v1/exercises
 
+### =========================
+### USER WORKOUT FLOW
+### =========================
 
+### Create UserWorkout (user 1 face workout 1)
+POST http://localhost:8080/api/v1/user-workouts
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "workoutId": 1,
+  "date": "2026-04-01"
+}
+
+###
+
+### Create UserWorkout 2
+POST http://localhost:8080/api/v1/user-workouts
+Content-Type: application/json
+
+{
+  "userId": 2,
+  "workoutId": 1,
+  "date": "2026-04-01"
+}
+
+###
+
+### Create UserWorkout 3
+POST http://localhost:8080/api/v1/user-workouts
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "workoutId": 3,
+  "date": "2026-04-02"
+}
+
+###
+
+### Get all UserWorkouts
+GET http://localhost:8080/api/v1/user-workouts
+
+###
+
+### Get UserWorkout by ID
+GET http://localhost:8080/api/v1/user-workouts/1
+
+###
+
+### Get all workouts for a specific user (user 1)
+GET http://localhost:8080/api/v1/user-workouts/user/1
+
+###
+
+### Delete UserWorkout
+DELETE http://localhost:8080/api/v1/user-workouts/2
+
+###
+
+### Get all again
+GET http://localhost:8080/api/v1/user-workouts
 
