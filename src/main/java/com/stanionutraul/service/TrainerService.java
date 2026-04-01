@@ -37,7 +37,7 @@ public class TrainerService {
     }
 
     public void deleteTrainer(Integer id) {
-        if(trainerRepository.existsById(id)) {
+        if(!trainerRepository.existsById(id)) {
             throw new RuntimeException("Trainer not found");
         }
         trainerRepository.deleteById(id);
