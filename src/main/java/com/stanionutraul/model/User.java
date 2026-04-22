@@ -1,18 +1,20 @@
 package com.stanionutraul.model;
 
 import jakarta.persistence.*;
-import lombok.Builder;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 
 @Entity
-@Builder
 @Table(name = "app_user")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class User implements UserDetails {
 
     @Id
@@ -21,6 +23,7 @@ public class User implements UserDetails {
 
     private String name;
 
+    @Column(unique = true)
     private String email;
 
     private String password;
@@ -32,16 +35,9 @@ public class User implements UserDetails {
     @JoinColumn(name = "membership_id")
     private Membership membership;
 
-    public User() {}
-
-    public User(String name, String email, String password, Role role) {
-        this.name = name;
-        this.email = email;
-        this.password = password;
-        this.role = role;
-    }
-
-    // 🔐 SECURITY METHODS
+    // =========================
+    // Spring Security methods
+    // =========================
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -49,13 +45,8 @@ public class User implements UserDetails {
     }
 
     @Override
-    public String getPassword() {
-        return password;
-    }
-
-    @Override
     public String getUsername() {
-        return email; // login by email
+        return email;
     }
 
     @Override
@@ -76,65 +67,5 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
-    }
-
-    // 🔁 GETTERS & SETTERS
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public Membership getMembership() {
-        return membership;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public void setMembership(Membership membership) {
-        this.membership = membership;
-    }
-
-    // ⚠️ IMPORTANT: FIX equals
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof User user)) return false;
-        return Objects.equals(id, user.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
     }
 }

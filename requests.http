@@ -367,3 +367,30 @@ DELETE http://localhost:8080/api/v1/user-workouts/2
 ### Get all again
 GET http://localhost:8080/api/v1/user-workouts
 
+###
+
+POST http://localhost:8080/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "name": "Ionut",
+  "email": "ionut@test.com",
+  "password": "1234",
+  "role": "USER"
+}
+
+###
+POST http://localhost:8080/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "ionut@test.com",
+  "password": "1234"
+}
+
+###
+GET http://localhost:8080/api/v1/workouts
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJpb251dEB0ZXN0LmNvbSIsImlhdCI6MTc3Njg3MTUwNiwiZXhwIjoxNzc2OTU3OTA2fQ.vEdYOi8se5z0WnzQVy6o514d-daAkGzrQ67LbzftWIY
+
+
+

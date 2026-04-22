@@ -22,6 +22,13 @@ public class AuthenticationService {
     // 🟢 REGISTER
     public AuthenticationResponse register(RegisterRequest request) {
 
+        System.out.println("🔥 REGISTER ATTEMPT: " + request.getEmail());
+
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            System.out.println("❌ EMAIL EXISTS");
+            throw new RuntimeException("Email already exists");
+        }
+
         var user = User.builder()
                 .name(request.getName())
                 .email(request.getEmail())
@@ -33,20 +40,26 @@ public class AuthenticationService {
 
         var jwtToken = jwtService.generateToken(user);
 
+        System.out.println("✅ USER CREATED");
+
         return AuthenticationResponse.builder()
                 .token(jwtToken)
                 .build();
     }
-
     // 🔵 LOGIN
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
 
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getEmail(),
-                        request.getPassword()
-                )
-        );
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getEmail(),
+                            request.getPassword()
+                    )
+            );
+        } catch (Exception e) {
+            System.out.println("AUTH ERROR: " + e.getMessage());
+            throw e;
+        }
 
         var user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));

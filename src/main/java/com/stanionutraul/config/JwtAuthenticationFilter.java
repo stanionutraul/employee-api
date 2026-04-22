@@ -29,42 +29,56 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-        final String authHeader = request.getHeader("Authorization");
-        final String jwt;
-        final String userEmail;
+        // 🔥 1. SKIP AUTH ENDPOINTS
+        String path = request.getServletPath();
 
-        // ❌ dacă nu există token → continuă normal
+        if (path.startsWith("/api/v1/auth")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        // 🔥 2. GET AUTH HEADER
+        final String authHeader = request.getHeader("Authorization");
+
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        // 🔍 extrage token
-        jwt = authHeader.substring(7);
+        try {
+            // 🔍 extract token
+            String jwt = authHeader.substring(7);
 
-        // 🔍 extrage email din token
-        userEmail = jwtService.extractUsername(jwt);
+            // 🔍 extract user email
+            String userEmail = jwtService.extractUsername(jwt);
 
-        // 🔐 dacă user nu e deja autentificat
-        if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            // 🔐 if not already authenticated
+            if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-            UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
+                UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
 
-            if (jwtService.isTokenValid(jwt, userDetails)) {
+                // ✅ validate token
+                if (jwtService.isTokenValid(jwt, userDetails)) {
 
-                UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(
-                                userDetails,
-                                null,
-                                userDetails.getAuthorities()
-                        );
+                    UsernamePasswordAuthenticationToken authToken =
+                            new UsernamePasswordAuthenticationToken(
+                                    userDetails,
+                                    null,
+                                    userDetails.getAuthorities()
+                            );
 
-                authToken.setDetails(
-                        new WebAuthenticationDetailsSource().buildDetails(request)
-                );
+                    authToken.setDetails(
+                            new WebAuthenticationDetailsSource().buildDetails(request)
+                    );
 
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
             }
+
+        } catch (Exception e) {
+            // 🚨 dacă token-ul e invalid, NU blocăm request-ul aici
+            // doar îl lăsăm să continue ca anon
+            System.out.println("JWT filter error: " + e.getMessage());
         }
 
         filterChain.doFilter(request, response);
