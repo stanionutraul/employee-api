@@ -1,396 +1,133 @@
-### Create Users (POST)
-POST http://localhost:8080/api/v1/users
-Content-Type: application/json
-
-{
-  "name": "Ionut",
-  "email": "ionut_raul@yahoo.com"
-}
-
-###
-
-POST http://localhost:8080/api/v1/users
-Content-Type: application/json
-
-{
-  "name": "Maria",
-  "email": "maria_popescu@gmail.com"
-}
-
-###
-
-POST http://localhost:8080/api/v1/users
-Content-Type: application/json
-
-{
-  "name": "Andrei",
-  "email": "andrei_ionescu@hotmail.com"
-}
-
-###
-
-POST http://localhost:8080/api/v1/users
-Content-Type: application/json
-
-{
-  "name": "Ana",
-  "email": "ana_matei@yahoo.com"
-}
-
-###
-
-POST http://localhost:8080/api/v1/users
-Content-Type: application/json
-
-{
-  "name": "George",
-  "email": "george.dumitru@gmail.com"
-}
-
-### Get all users
-GET http://localhost:8080/api/v1/users
-
-### Get user by ID
-GET http://localhost:8080/api/v1/users/1
-
-GET http://localhost:8080/api/v1/users/3
-
-### Update user (PUT)
-PUT http://localhost:8080/api/v1/users/2
-Content-Type: application/json
-
-{
-  "name": "Maria Updated",
-  "email": "maria_updated@gmail.com"
-}
-
-### Delete user
-DELETE http://localhost:8080/api/v1/users/4
-
-### Get all users after deletion
-GET http://localhost:8080/api/v1/users
-
-###
-POST http://localhost:8080/api/v1/users
-Content-Type: application/json
-
-{
-  "name": "Andrei",
-  "email": ""
-
-}
-
-### CREATE MEMBERSHIPS
-POST http://localhost:8080/api/v1/memberships
-Content-Type: application/json
-
-{
-  "type": "Basic",
-  "price": 100,
-  "duration": 30
-}
-
-###
-
-POST http://localhost:8080/api/v1/memberships
-Content-Type: application/json
-
-{
-  "type": "Premium",
-  "price": 200,
-  "duration": 30
-}
-
-###
-
-### CREATE USER WITH MEMBERSHIP
-POST http://localhost:8080/api/v1/users
-Content-Type: application/json
-
-{
-  "name": "Ionut",
-  "email": "ionut@test.com",
-  "membershipId": 1
-}
-
-###
-
-### GET USERS
-GET http://localhost:8080/api/v1/users
-
-### GET MEMBERS
-GET http://localhost:8080/api/v1/memberships
-
 ### =========================
-### TRAINER FLOW
+### 🔐 AUTH FLOW
 ### =========================
 
-### Create Trainer 1
-POST http://localhost:8080/api/v1/trainers
-Content-Type: application/json
-
-{
-  "name": "Alex Coach"
-}
-
-###
-
-### Create Trainer 2
-POST http://localhost:8080/api/v1/trainers
-Content-Type: application/json
-
-{
-  "name": "Maria PT"
-}
-
-###
-
-### Get all trainers
-GET http://localhost:8080/api/v1/trainers
-
-###
-
-### Get trainer by id
-GET http://localhost:8080/api/v1/trainers/1
-
-###
-
-### Delete trainer (optional test)
-DELETE http://localhost:8080/api/v1/trainers/2
-
-
-### =========================
-### WORKOUT FLOW
-### =========================
-
-### Create Workout (linked to Trainer 1)
-POST http://localhost:8080/api/v1/workouts
-Content-Type: application/json
-
-{
-  "name": "Push Day",
-  "description": "Chest + Triceps",
-  "trainerId": 1
-}
-
-###
-
-### Create another Workout
-POST http://localhost:8080/api/v1/workouts
-Content-Type: application/json
-
-{
-  "name": "Pull Day",
-  "description": "Back + Biceps",
-  "trainerId": 1
-}
-
-###
-
-### Create Workout for Trainer 2
-POST http://localhost:8080/api/v1/workouts
-Content-Type: application/json
-
-{
-  "name": "Leg Day",
-  "description": "Quads + Hamstrings",
-  "trainerId": 2
-}
-
-###
-
-### Get all workouts
-GET http://localhost:8080/api/v1/workouts
-
-###
-
-### Get workout by id
-GET http://localhost:8080/api/v1/workouts/1
-
-###
-
-### Update workout
-PUT http://localhost:8080/api/v1/workouts/1
-Content-Type: application/json
-
-{
-  "name": "Push Day UPDATED",
-  "description": "Chest + Shoulders",
-  "trainerId": 1
-}
-
-###
-
-### Delete workout
-DELETE http://localhost:8080/api/v1/workouts/2
-
-###
-
-### Get all workouts again
-GET http://localhost:8080/api/v1/workouts
-
-
-### =========================
-### EXERCISE FLOW
-### =========================
-
-### Create Exercise (for Workout 1)
-POST http://localhost:8080/api/v1/exercises
-Content-Type: application/json
-
-{
-  "name": "Bench Press",
-  "sets": 4,
-  "reps": 10,
-  "workoutId": 4
-}
-
-###
-
-### Create Exercise 2 (for Workout 1)
-POST http://localhost:8080/api/v1/exercises
-Content-Type: application/json
-
-{
-  "name": "Incline Dumbbell Press",
-  "sets": 3,
-  "reps": 12,
-  "workoutId": 3
-}
-
-###
-
-### Create Exercise 3 (for Workout 2)
-POST http://localhost:8080/api/v1/exercises
-Content-Type: application/json
-
-{
-  "name": "Pull Ups",
-  "sets": 4,
-  "reps": 8,
-  "workoutId": 2
-}
-
-###
-
-### Get all exercises
-GET http://localhost:8080/api/v1/exercises
-
-###
-
-### Get exercise by id
-GET http://localhost:8080/api/v1/exercises/1
-
-###
-
-### Update exercise
-PUT http://localhost:8080/api/v1/exercises/1
-Content-Type: application/json
-
-{
-  "name": "Bench Press UPDATED",
-  "sets": 5,
-  "reps": 8,
-  "workoutId": 1
-}
-
-###
-
-### Delete exercise
-DELETE http://localhost:8080/api/v1/exercises/3
-
-###
-
-### Get all exercises again
-GET http://localhost:8080/api/v1/exercises
-
-### =========================
-### USER WORKOUT FLOW
-### =========================
-
-### Create UserWorkout (user 1 face workout 1)
-POST http://localhost:8080/api/v1/user-workouts
-Content-Type: application/json
-
-{
-  "userId": 1,
-  "workoutId": 1,
-  "date": "2026-04-01"
-}
-
-###
-
-### Create UserWorkout 2
-POST http://localhost:8080/api/v1/user-workouts
-Content-Type: application/json
-
-{
-  "userId": 2,
-  "workoutId": 1,
-  "date": "2026-04-01"
-}
-
-###
-
-### Create UserWorkout 3
-POST http://localhost:8080/api/v1/user-workouts
-Content-Type: application/json
-
-{
-  "userId": 1,
-  "workoutId": 3,
-  "date": "2026-04-02"
-}
-
-###
-
-### Get all UserWorkouts
-GET http://localhost:8080/api/v1/user-workouts
-
-###
-
-### Get UserWorkout by ID
-GET http://localhost:8080/api/v1/user-workouts/1
-
-###
-
-### Get all workouts for a specific user (user 1)
-GET http://localhost:8080/api/v1/user-workouts/user/1
-
-###
-
-### Delete UserWorkout
-DELETE http://localhost:8080/api/v1/user-workouts/2
-
-###
-
-### Get all again
-GET http://localhost:8080/api/v1/user-workouts
-
-###
-
+### Register USER
 POST http://localhost:8080/api/v1/auth/register
 Content-Type: application/json
 
 {
-  "name": "Ionut",
-  "email": "ionut@test.com",
+  "name": "User Test",
+  "email": "user@test.com",
   "password": "1234",
   "role": "USER"
 }
 
 ###
+
+### Register TRAINER
+POST http://localhost:8080/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "name": "Trainer Test",
+  "email": "trainer@test.com",
+  "password": "1234",
+  "role": "TRAINER"
+}
+
+###
+
+### Login USER
 POST http://localhost:8080/api/v1/auth/login
 Content-Type: application/json
 
 {
-  "email": "ionut@test.com",
+  "email": "user@test.com",
   "password": "1234"
 }
 
 ###
+
+### Login TRAINER
+POST http://localhost:8080/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "trainer@test.com",
+  "password": "1234"
+}
+
+###
+
+# 🔑 MANUAL TOKEN (copy-paste după login)
+@user_token = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyQHRlc3QuY29tIiwiaWF0IjoxNzc3MzA4MDE3LCJleHAiOjE3NzczOTQ0MTd9.zoJnfnb_tDt8lCcFLLIXS61frdkzQi7ga1Z10G4JjUU
+@trainer_token = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyQHRlc3QuY29tIiwiaWF0IjoxNzc3MzA4MDE3LCJleHAiOjE3NzczOTQ0MTd9.zoJnfnb_tDt8lCcFLLIXS61frdkzQi7ga1Z10G4JjUU
+
+### =========================
+### 🧪 SECURITY TESTS
+### =========================
+
+### ❌ FĂRĂ TOKEN (trebuie 403)
 GET http://localhost:8080/api/v1/workouts
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJpb251dEB0ZXN0LmNvbSIsImlhdCI6MTc3Njg3MTUwNiwiZXhwIjoxNzc2OTU3OTA2fQ.vEdYOi8se5z0WnzQVy6o514d-daAkGzrQ67LbzftWIY
 
+###
 
+### 🔐 USER TOKEN (GET allowed)
+GET http://localhost:8080/api/v1/workouts
+Authorization: Bearer {{user_token}}
 
+###
+
+### 🔐 TRAINER TOKEN
+GET http://localhost:8080/api/v1/workouts
+Authorization: Bearer {{trainer_token}}
+
+### =========================
+### 💪 WORKOUTS
+### =========================
+
+### ➕ CREATE WORKOUT (TRAINER ONLY)
+POST http://localhost:8080/api/v1/workouts
+Content-Type: application/json
+Authorization: Bearer {{trainer_token}}
+
+{
+  "name": "Push Day",
+  "description": "Chest + Triceps",
+  "trainerId": 2
+}
+
+###
+
+### 📥 GET ALL WORKOUTS
+GET http://localhost:8080/api/v1/workouts
+Authorization: Bearer {{user_token}}
+
+### =========================
+### 🧍 USER WORKOUTS
+### =========================
+
+### ➕ ASSIGN WORKOUT TO USER
+POST http://localhost:8080/api/v1/user-workouts
+Content-Type: application/json
+Authorization: Bearer {{user_token}}
+
+{
+  "userId": 1,
+  "workoutId": 1,
+  "date": "2026-04-01"
+}
+
+###
+
+### 📥 GET USER WORKOUTS
+GET http://localhost:8080/api/v1/user-workouts
+Authorization: Bearer {{user_token}}
+
+### =========================
+### 🏋️ TRAINERS
+### =========================
+
+POST http://localhost:8080/api/v1/trainers
+Content-Type: application/json
+Authorization: Bearer {{trainer_token}}
+
+{
+  "name": "Should Fail If Not Admin"
+}
+
+###
+
+GET http://localhost:8080/api/v1/trainers
+Authorization: Bearer {{trainer_token}}

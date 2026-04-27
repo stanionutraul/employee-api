@@ -1,39 +1,29 @@
 package com.stanionutraul.model;
 
-
 import jakarta.persistence.*;
-import org.springframework.jmx.export.annotation.ManagedAttribute;
-
 import java.util.Objects;
 
 @Entity
 public class Workout {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
     private String name;
     private String description;
 
     @ManyToOne
     @JoinColumn(name = "trainer_id")
-    private Trainer trainer;
+    private User trainer;
 
+    public Workout() {}
 
     public Workout(Integer id, String name, String description) {
         this.id = id;
         this.name = name;
         this.description = description;
     }
-
-    public Trainer getTrainer() {
-        return trainer;
-    }
-
-    public void setTrainer(Trainer trainer) {
-        this.trainer = trainer;
-    }
-
-    public Workout() {}
 
     public Integer getId() {
         return id;
@@ -59,11 +49,22 @@ public class Workout {
         this.description = description;
     }
 
+    public User getTrainer() {
+        return trainer;
+    }
+
+    public void setTrainer(User trainer) {
+        this.trainer = trainer;
+    }
+
     @Override
     public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) return true;
+        if (!(o instanceof Workout)) return false;
         Workout workout = (Workout) o;
-        return Objects.equals(id, workout.id) && Objects.equals(name, workout.name) && Objects.equals(description, workout.description);
+        return Objects.equals(id, workout.id)
+                && Objects.equals(name, workout.name)
+                && Objects.equals(description, workout.description);
     }
 
     @Override
