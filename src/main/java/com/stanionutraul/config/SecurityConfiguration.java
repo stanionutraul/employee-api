@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import org.springframework.http.HttpMethod;
+
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -22,30 +24,65 @@ public class SecurityConfiguration {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
         return http
                 .csrf(csrf -> csrf.disable())
+
                 .authorizeHttpRequests(auth -> auth
 
-                        // public
-                        .requestMatchers("/api/v1/auth/**").permitAll()
+                        // =========================
+                        // PUBLIC
+                        // =========================
+                        .requestMatchers("/api/v1/auth/**")
+                        .permitAll()
 
-                        // ADMIN only
-                        .requestMatchers("/api/v1/trainers/**").hasRole("ADMIN")
+                        // =========================
+                        // TRAINERS (ADMIN ONLY)
+                        // =========================
+                        .requestMatchers("/api/v1/trainers/**")
+                        .hasRole("ADMIN")
 
-                        // ADMIN + TRAINER
-                        .requestMatchers("/api/v1/workouts/**").hasAnyRole("ADMIN", "TRAINER")
+                        // =========================
+                        // WORKOUTS
+                        // =========================
 
-                        // USER only
-                        .requestMatchers("/api/v1/user-workouts/**").hasRole("USER")
+                        // VIEW workouts
+                        .requestMatchers(HttpMethod.GET, "/api/v1/workouts/**")
+                        .hasAnyRole("USER", "TRAINER", "ADMIN")
 
-                        // rest
-                        .anyRequest().authenticated()
+                        // CREATE workout
+                        .requestMatchers(HttpMethod.POST, "/api/v1/workouts/**")
+                        .hasAnyRole("TRAINER", "ADMIN")
+
+                        // UPDATE workout
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/workouts/**")
+                        .hasAnyRole("TRAINER", "ADMIN")
+
+                        // DELETE workout
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/workouts/**")
+                        .hasAnyRole("TRAINER", "ADMIN")
+
+                        // =========================
+                        // USER WORKOUTS
+                        // =========================
+                        .requestMatchers("/api/v1/user-workouts/**")
+                        .hasRole("USER")
+
+                        // =========================
+                        // EVERYTHING ELSE
+                        // =========================
+                        .anyRequest()
+                        .authenticated()
                 )
+
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
+
                 .authenticationProvider(authenticationProvider)
+
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+
                 .build();
     }
 }

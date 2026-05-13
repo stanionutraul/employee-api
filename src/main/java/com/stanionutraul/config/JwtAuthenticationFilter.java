@@ -29,36 +29,39 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-        // 🔥 1. SKIP AUTH ENDPOINTS
         String path = request.getServletPath();
+        String authHeader = request.getHeader("Authorization");
+
+        System.out.println("\n=== REQUEST ===");
+        System.out.println("Path: " + path);
+        System.out.println("Auth header: " + authHeader);
 
         if (path.startsWith("/api/v1/auth")) {
+            System.out.println("SKIP JWT FILTER (auth endpoint)");
             filterChain.doFilter(request, response);
             return;
         }
 
-        // 🔥 2. GET AUTH HEADER
-        final String authHeader = request.getHeader("Authorization");
-
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            System.out.println("NO TOKEN -> request goes as anonymous");
             filterChain.doFilter(request, response);
             return;
         }
 
         try {
-            // 🔍 extract token
             String jwt = authHeader.substring(7);
+            System.out.println("JWT: " + jwt);
 
-            // 🔍 extract user email
             String userEmail = jwtService.extractUsername(jwt);
+            System.out.println("Extracted email: " + userEmail);
 
-            // 🔐 if not already authenticated
             if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
                 UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
+                System.out.println("Loaded user: " + userDetails.getUsername());
 
-                // ✅ validate token
                 if (jwtService.isTokenValid(jwt, userDetails)) {
+                    System.out.println("TOKEN VALID ✔");
 
                     UsernamePasswordAuthenticationToken authToken =
                             new UsernamePasswordAuthenticationToken(
@@ -72,13 +75,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     );
 
                     SecurityContextHolder.getContext().setAuthentication(authToken);
+                } else {
+                    System.out.println("TOKEN INVALID ❌");
                 }
             }
 
         } catch (Exception e) {
-            // 🚨 dacă token-ul e invalid, NU blocăm request-ul aici
-            // doar îl lăsăm să continue ca anon
-            System.out.println("JWT filter error: " + e.getMessage());
+            System.out.println("JWT FILTER ERROR: " + e.getMessage());
         }
 
         filterChain.doFilter(request, response);

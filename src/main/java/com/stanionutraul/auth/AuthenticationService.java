@@ -28,12 +28,17 @@ public class AuthenticationService {
             System.out.println("❌ EMAIL EXISTS");
             throw new RuntimeException("Email already exists");
         }
+        Role role = request.getRole();
+
+        if (role == null) {
+            role = Role.USER;
+        }
 
         var user = User.builder()
                 .name(request.getName())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .role(Role.USER).role(Role.TRAINER)
+                .role(role)
                 .build();
 
         userRepository.save(user);

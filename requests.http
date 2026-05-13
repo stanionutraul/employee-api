@@ -1,5 +1,5 @@
 ### =========================
-### 🔐 AUTH FLOW
+### 🔐 AUTH FLOW (SIMPLU)
 ### =========================
 
 ### Register USER
@@ -37,6 +37,8 @@ Content-Type: application/json
   "password": "1234"
 }
 
+> {% client.global.set("user_token", response.body.token); %}
+
 ###
 
 ### Login TRAINER
@@ -48,28 +50,24 @@ Content-Type: application/json
   "password": "1234"
 }
 
-###
-
-# 🔑 MANUAL TOKEN (copy-paste după login)
-@user_token = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyQHRlc3QuY29tIiwiaWF0IjoxNzc3MzA4MDE3LCJleHAiOjE3NzczOTQ0MTd9.zoJnfnb_tDt8lCcFLLIXS61frdkzQi7ga1Z10G4JjUU
-@trainer_token = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyQHRlc3QuY29tIiwiaWF0IjoxNzc3MzA4MDE3LCJleHAiOjE3NzczOTQ0MTd9.zoJnfnb_tDt8lCcFLLIXS61frdkzQi7ga1Z10G4JjUU
+> {% client.global.set("trainer_token", response.body.token); %}
 
 ### =========================
-### 🧪 SECURITY TESTS
+### 🧪 TEST SECURITY
 ### =========================
 
-### ❌ FĂRĂ TOKEN (trebuie 403)
+### No token (should fail)
 GET http://localhost:8080/api/v1/workouts
 
 ###
 
-### 🔐 USER TOKEN (GET allowed)
+### USER token
 GET http://localhost:8080/api/v1/workouts
 Authorization: Bearer {{user_token}}
 
 ###
 
-### 🔐 TRAINER TOKEN
+### TRAINER token
 GET http://localhost:8080/api/v1/workouts
 Authorization: Bearer {{trainer_token}}
 
@@ -77,57 +75,39 @@ Authorization: Bearer {{trainer_token}}
 ### 💪 WORKOUTS
 ### =========================
 
-### ➕ CREATE WORKOUT (TRAINER ONLY)
+### Create workout (TRAINER only)
 POST http://localhost:8080/api/v1/workouts
 Content-Type: application/json
 Authorization: Bearer {{trainer_token}}
 
 {
   "name": "Push Day",
-  "description": "Chest + Triceps",
-  "trainerId": 2
+  "description": "Chest + Triceps"
 }
 
 ###
 
-### 📥 GET ALL WORKOUTS
+### Get workouts
 GET http://localhost:8080/api/v1/workouts
-Authorization: Bearer {{user_token}}
+Authorization: Bearer {{trainer_token}}
 
 ### =========================
 ### 🧍 USER WORKOUTS
 ### =========================
 
-### ➕ ASSIGN WORKOUT TO USER
+### Assign workout to user
 POST http://localhost:8080/api/v1/user-workouts
 Content-Type: application/json
 Authorization: Bearer {{user_token}}
 
 {
-  "userId": 1,
-  "workoutId": 1,
+  "userId": 7,
+  "workoutId": 3,
   "date": "2026-04-01"
 }
 
 ###
 
-### 📥 GET USER WORKOUTS
+### Get user workouts
 GET http://localhost:8080/api/v1/user-workouts
 Authorization: Bearer {{user_token}}
-
-### =========================
-### 🏋️ TRAINERS
-### =========================
-
-POST http://localhost:8080/api/v1/trainers
-Content-Type: application/json
-Authorization: Bearer {{trainer_token}}
-
-{
-  "name": "Should Fail If Not Admin"
-}
-
-###
-
-GET http://localhost:8080/api/v1/trainers
-Authorization: Bearer {{trainer_token}}
