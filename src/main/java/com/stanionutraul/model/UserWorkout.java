@@ -19,6 +19,9 @@ public class UserWorkout {
 
     private String date;
 
+    @Column(nullable = false)
+    private boolean completed = false;
+
     public UserWorkout() {}
 
     public UserWorkout(Integer id, User user, Workout workout, String date) {
@@ -58,6 +61,14 @@ public class UserWorkout {
 
     public void setDate(String date) {
         this.date = date;
+    }
+
+    public boolean isCompleted() {
+        return completed;
+    }
+
+    public void setCompleted(boolean completed) {
+        this.completed = completed;
     }
 
     @Override

@@ -46,6 +46,8 @@ public class UserWorkoutService {
         Workout workout = workoutRepository.findById(dto.getWorkoutId())
                 .orElseThrow(() -> new RuntimeException("Workout not found"));
 
+        validateDailyLimit(dto.getUserId(), dto.getDate().substring(0, 10));
+
         UserWorkout userWorkout = UserWorkoutMapper.toEntity(dto);
         userWorkout.setUser(user);
         userWorkout.setWorkout(workout);
@@ -58,8 +60,12 @@ public class UserWorkoutService {
         return UserWorkoutMapper.toDto(userWorkout);
     }
 
-    public List<UserWorkoutResponseDTO> getUserById(Integer userId){
-        return userWorkoutRepository.findAll().stream().filter(uw -> uw.getUser() != null && uw.getUser().getId().equals(userId)).map(UserWorkoutMapper::toDto).toList();
+    public List<UserWorkoutResponseDTO> getUserById(Integer userId) {
+
+        return userWorkoutRepository.findByUserId(userId)
+                .stream()
+                .map(UserWorkoutMapper::toDto)
+                .toList();
     }
 
 
@@ -68,6 +74,26 @@ public class UserWorkoutService {
             throw new RuntimeException("User not found");
         }
         userWorkoutRepository.deleteById(id);
+    }
+
+    public void validateDailyLimit(Integer userId, String date) {
+        long count = userWorkoutRepository.findAll().stream()
+                .filter(w -> w.getUser().getId().equals(userId))
+                .filter(w -> w.getDate().startsWith(date))
+                .count();
+
+        if (count >= 2) {
+            throw new RuntimeException("Max 2 workouts per day allowed");
+        }
+    }
+
+    public UserWorkoutResponseDTO complete(Integer id) {
+        UserWorkout userWorkout = userWorkoutRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User workout not found"));
+
+        userWorkout.setCompleted(true);
+
+        return UserWorkoutMapper.toDto(userWorkoutRepository.save(userWorkout));
     }
 
 

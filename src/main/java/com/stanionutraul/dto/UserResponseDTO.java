@@ -1,17 +1,11 @@
 package com.stanionutraul.dto;
 
 public class UserResponseDTO {
+
     private Integer id;
     private String name;
     private String email;
-
-    public MembershipResponseDTO getMembership() {
-        return membership;
-    }
-
-    public void setMembership(MembershipResponseDTO membership) {
-        this.membership = membership;
-    }
+    private String role;
 
     private MembershipResponseDTO membership;
 
@@ -37,5 +31,21 @@ public class UserResponseDTO {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public MembershipResponseDTO getMembership() {
+        return membership;
+    }
+
+    public void setMembership(MembershipResponseDTO membership) {
+        this.membership = membership;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 }

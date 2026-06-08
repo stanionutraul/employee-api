@@ -5,6 +5,15 @@ public class UserWorkoutResponseDTO {
     private String userName;
     private String workoutName;
     private String date;
+    private boolean completed;
+
+    public boolean isCompleted() {
+        return completed;
+    }
+
+    public void setCompleted(boolean completed) {
+        this.completed = completed;
+    }
 
 
     public Integer getId() {

@@ -15,9 +15,10 @@ public class UserWorkoutMapper {
     }
 
     public static UserWorkoutResponseDTO toDto(UserWorkout userWorkout){
-        UserWorkoutResponseDTO  dto = new UserWorkoutResponseDTO ();
+        UserWorkoutResponseDTO dto = new UserWorkoutResponseDTO();
         dto.setId(userWorkout.getId());
         dto.setDate(userWorkout.getDate());
+        dto.setCompleted(userWorkout.isCompleted());
 
         if(userWorkout.getUser() != null){
             dto.setUserName(userWorkout.getUser().getName());

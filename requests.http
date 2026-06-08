@@ -65,7 +65,18 @@ GET http://localhost:8080/api/v1/workouts
 GET http://localhost:8080/api/v1/workouts
 Authorization: Bearer {{user_token}}
 
+
+### Complete user workout
+PUT http://localhost:8080/api/v1/user-workouts/21/complete
+Authorization: Bearer {{trainer_token}}
+
+
+
 ###
+
+
+GET http://localhost:8080/api/v1/auth/me
+Authorization: Bearer {{trainer_token}}
 
 ### TRAINER token
 GET http://localhost:8080/api/v1/workouts

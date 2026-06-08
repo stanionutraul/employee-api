@@ -11,19 +11,23 @@ public class Workout {
     private Integer id;
 
     private String name;
+
+    @Column(length = 1000)
     private String description;
+
+    private Integer durationMinutes;
+
+    @Enumerated(EnumType.STRING)
+    private WorkoutDifficulty difficulty;
+
+    @Enumerated(EnumType.STRING)
+    private WorkoutCategory category;
 
     @ManyToOne
     @JoinColumn(name = "trainer_id")
     private User trainer;
 
     public Workout() {}
-
-    public Workout(Integer id, String name, String description) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-    }
 
     public Integer getId() {
         return id;
@@ -49,6 +53,30 @@ public class Workout {
         this.description = description;
     }
 
+    public Integer getDurationMinutes() {
+        return durationMinutes;
+    }
+
+    public void setDurationMinutes(Integer durationMinutes) {
+        this.durationMinutes = durationMinutes;
+    }
+
+    public WorkoutDifficulty getDifficulty() {
+        return difficulty;
+    }
+
+    public void setDifficulty(WorkoutDifficulty difficulty) {
+        this.difficulty = difficulty;
+    }
+
+    public WorkoutCategory getCategory() {
+        return category;
+    }
+
+    public void setCategory(WorkoutCategory category) {
+        this.category = category;
+    }
+
     public User getTrainer() {
         return trainer;
     }
@@ -62,13 +90,11 @@ public class Workout {
         if (this == o) return true;
         if (!(o instanceof Workout)) return false;
         Workout workout = (Workout) o;
-        return Objects.equals(id, workout.id)
-                && Objects.equals(name, workout.name)
-                && Objects.equals(description, workout.description);
+        return Objects.equals(id, workout.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, description);
+        return Objects.hash(id);
     }
 }

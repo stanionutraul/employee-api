@@ -66,6 +66,9 @@ public class WorkoutService {
 
         workout.setName(dto.getName());
         workout.setDescription(dto.getDescription());
+        workout.setDurationMinutes(dto.getDurationMinutes());
+        workout.setDifficulty(dto.getDifficulty());
+        workout.setCategory(dto.getCategory());
 
         if (dto.getTrainerId() != null) {
 

@@ -46,4 +46,11 @@ public class UserWorkoutController {
     public void delete(@PathVariable Integer id) {
         userWorkoutService.delete(id);
     }
+
+
+    //COMPLETE WORKOUT
+    @PutMapping("{id}/complete")
+    public UserWorkoutResponseDTO complete(@PathVariable Integer id) {
+        return userWorkoutService.complete(id);
+    }
 }
