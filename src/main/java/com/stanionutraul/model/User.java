@@ -35,6 +35,9 @@ public class User implements UserDetails {
     @JoinColumn(name = "membership_id")
     private Membership membership;
 
+    @Column(nullable = false)
+    private boolean emailVerified = false;
+
     // =========================
     // Spring Security methods
     // =========================
@@ -66,6 +69,6 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return emailVerified;
     }
 }

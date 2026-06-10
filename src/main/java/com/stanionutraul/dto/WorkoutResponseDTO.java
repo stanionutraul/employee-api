@@ -10,6 +10,8 @@ public class WorkoutResponseDTO {
     private Integer durationMinutes;
     private WorkoutDifficulty difficulty;
     private WorkoutCategory category;
+
+    private Integer trainerId;
     private String trainerName;
 
     public Integer getId() {
@@ -58,6 +60,14 @@ public class WorkoutResponseDTO {
 
     public void setCategory(WorkoutCategory category) {
         this.category = category;
+    }
+
+    public Integer getTrainerId() {
+        return trainerId;
+    }
+
+    public void setTrainerId(Integer trainerId) {
+        this.trainerId = trainerId;
     }
 
     public String getTrainerName() {

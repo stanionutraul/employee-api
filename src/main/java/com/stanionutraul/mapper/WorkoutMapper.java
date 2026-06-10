@@ -29,6 +29,7 @@ public class WorkoutMapper {
         dto.setCategory(workout.getCategory());
 
         if (workout.getTrainer() != null) {
+            dto.setTrainerId(workout.getTrainer().getId());
             dto.setTrainerName(workout.getTrainer().getName());
         }
 

@@ -1,78 +1,125 @@
 package com.stanionutraul.auth;
 
 import com.stanionutraul.config.JwtService;
+import com.stanionutraul.model.EmailVerificationToken;
 import com.stanionutraul.model.Role;
 import com.stanionutraul.model.User;
+import com.stanionutraul.repository.EmailVerificationTokenRepository;
 import com.stanionutraul.repository.UserRepository;
+import com.stanionutraul.service.EmailService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
 
     private final UserRepository userRepository;
+    private final EmailVerificationTokenRepository tokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final EmailService emailService;
 
-    // 🟢 REGISTER
+    @Value("${app.backend.url}")
+    private String backendUrl;
+
     public AuthenticationResponse register(RegisterRequest request) {
 
-        System.out.println("🔥 REGISTER ATTEMPT: " + request.getEmail());
-
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-            System.out.println("❌ EMAIL EXISTS");
             throw new RuntimeException("Email already exists");
         }
+
         Role role = request.getRole();
 
         if (role == null) {
             role = Role.USER;
         }
 
-        var user = User.builder()
+        User user = User.builder()
                 .name(request.getName())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(role)
+                .emailVerified(false)
                 .build();
 
-        userRepository.save(user);
+        User savedUser = userRepository.save(user);
 
-        var jwtToken = jwtService.generateToken(user);
+        String token = UUID.randomUUID().toString();
 
-        System.out.println("✅ USER CREATED");
+        EmailVerificationToken verificationToken = new EmailVerificationToken();
+        verificationToken.setToken(token);
+        verificationToken.setUser(savedUser);
+        verificationToken.setExpiresAt(LocalDateTime.now().plusHours(24));
+        verificationToken.setUsed(false);
+
+        tokenRepository.save(verificationToken);
+
+        String verificationUrl = backendUrl + "/api/v1/auth/verify?token=" + token;
+
+        emailService.sendVerificationEmail(
+                savedUser.getEmail(),
+                savedUser.getName(),
+                verificationUrl
+        );
+
+        return AuthenticationResponse.builder()
+                .token(null)
+                .build();
+    }
+
+    public AuthenticationResponse authenticate(AuthenticationRequest request) {
+
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("Invalid email or password"));
+
+        if (!user.isEmailVerified()) {
+            throw new DisabledException("Please verify your email before logging in.");
+        }
+
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getEmail(),
+                        request.getPassword()
+                )
+        );
+
+        String jwtToken = jwtService.generateToken(user);
 
         return AuthenticationResponse.builder()
                 .token(jwtToken)
                 .build();
     }
-    // 🔵 LOGIN
-    public AuthenticationResponse authenticate(AuthenticationRequest request) {
 
-        try {
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            request.getEmail(),
-                            request.getPassword()
-                    )
-            );
-        } catch (Exception e) {
-            System.out.println("AUTH ERROR: " + e.getMessage());
-            throw e;
+    public String verifyEmail(String token) {
+        EmailVerificationToken verificationToken = tokenRepository.findByToken(token)
+                .orElseThrow(() -> new RuntimeException("Invalid verification token"));
+
+        if (verificationToken.isUsed()) {
+            throw new RuntimeException("Verification token already used");
         }
 
-        var user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        if (verificationToken.getExpiresAt().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("Verification token expired");
+        }
 
-        var jwtToken = jwtService.generateToken(user);
+        User user = verificationToken.getUser();
+        user.setEmailVerified(true);
 
-        return AuthenticationResponse.builder()
-                .token(jwtToken)
-                .build();
+        verificationToken.setUsed(true);
+
+        userRepository.save(user);
+        tokenRepository.save(verificationToken);
+
+        return "Email verified successfully. You can now login.";
     }
 }

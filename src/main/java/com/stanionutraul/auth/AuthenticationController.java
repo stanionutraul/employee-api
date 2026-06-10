@@ -14,7 +14,6 @@ public class AuthenticationController {
 
     private final AuthenticationService authenticationService;
 
-    // 🟢 REGISTER
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponse> register(
             @RequestBody RegisterRequest request
@@ -22,17 +21,20 @@ public class AuthenticationController {
         return ResponseEntity.ok(authenticationService.register(request));
     }
 
-    // 🔵 LOGIN
     @PostMapping("/login")
     public ResponseEntity<AuthenticationResponse> authenticate(
             @RequestBody AuthenticationRequest request
     ) {
         return ResponseEntity.ok(authenticationService.authenticate(request));
     }
+
+    @GetMapping("/verify")
+    public ResponseEntity<String> verifyEmail(@RequestParam String token) {
+        return ResponseEntity.ok(authenticationService.verifyEmail(token));
+    }
+
     @GetMapping("/me")
-    public ResponseEntity<UserResponseDTO> me(
-            Authentication authentication
-    ) {
+    public ResponseEntity<UserResponseDTO> me(Authentication authentication) {
 
         User user = (User) authentication.getPrincipal();
 
