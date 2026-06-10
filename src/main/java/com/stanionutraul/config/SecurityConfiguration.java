@@ -109,6 +109,33 @@ public class SecurityConfiguration {
                         // =========================
                         // EVERYTHING ELSE
                         // =========================
+                        .requestMatchers("/api/v1/profile/**")
+                        .authenticated()
+
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/v1/workouts/*/exercises"
+                        )
+                        .hasAnyRole("USER", "TRAINER", "ADMIN")
+
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/v1/workouts/*/exercises"
+                        )
+                        .hasAnyRole("TRAINER", "ADMIN")
+
+                        .requestMatchers(
+                                HttpMethod.PUT,
+                                "/api/v1/workout-exercises/**"
+                        )
+                        .hasAnyRole("TRAINER", "ADMIN")
+
+                        .requestMatchers(
+                                HttpMethod.DELETE,
+                                "/api/v1/workout-exercises/**"
+                        )
+                        .hasAnyRole("TRAINER", "ADMIN")
+
                         .anyRequest()
                         .authenticated()
                 )
