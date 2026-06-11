@@ -27,7 +27,18 @@ public class Workout {
     @JoinColumn(name = "trainer_id")
     private User trainer;
 
+    private boolean archived = false;
+
+
     public Workout() {}
+
+    public boolean isArchived() {
+        return archived;
+    }
+
+    public void setArchived(boolean archived) {
+        this.archived = archived;
+    }
 
     public Integer getId() {
         return id;

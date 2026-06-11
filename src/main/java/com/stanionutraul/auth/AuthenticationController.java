@@ -45,6 +45,10 @@ public class AuthenticationController {
         dto.setEmail(user.getEmail());
         dto.setRole(user.getRole().name());
 
+        dto.setCreatedAt(
+                user.getCreatedAt() != null ? user.getCreatedAt().toString() : null
+        );
+
         return ResponseEntity.ok(dto);
     }
 }

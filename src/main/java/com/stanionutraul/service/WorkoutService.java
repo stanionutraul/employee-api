@@ -25,10 +25,10 @@ public class WorkoutService {
     }
 
     public List<WorkoutResponseDTO> getAllWorkouts() {
-        return workoutRepository.findAll()
+        return workoutRepository.findByArchivedFalse()
                 .stream()
                 .map(WorkoutMapper::toDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public WorkoutResponseDTO insertWorkout(WorkoutRequestDTO dto) {
@@ -53,10 +53,12 @@ public class WorkoutService {
     }
 
     public void deleteWorkout(Integer id) {
-        if (!workoutRepository.existsById(id)) {
-            throw new RuntimeException("Workout not found");
-        }
-        workoutRepository.deleteById(id);
+        Workout workout = workoutRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Workout not found"));
+
+        workout.setArchived(true);
+
+        workoutRepository.save(workout);
     }
 
     public WorkoutResponseDTO updateWorkout(Integer id, WorkoutRequestDTO dto) {
