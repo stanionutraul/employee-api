@@ -9,4 +9,5 @@ public interface UserWorkoutRepository extends JpaRepository<UserWorkout, Intege
 
     List<UserWorkout> findByUserId(Integer userId);
 
+    List<UserWorkout> findByWorkoutTrainerId(Integer trainerId);
 }

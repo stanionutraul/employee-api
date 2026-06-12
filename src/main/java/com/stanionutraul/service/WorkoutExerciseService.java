@@ -3,6 +3,8 @@ package com.stanionutraul.service;
 import com.stanionutraul.dto.WorkoutExerciseRequestDTO;
 import com.stanionutraul.dto.WorkoutExerciseResponseDTO;
 import com.stanionutraul.mapper.WorkoutExerciseMapper;
+import com.stanionutraul.model.Role;
+import com.stanionutraul.model.User;
 import com.stanionutraul.model.Workout;
 import com.stanionutraul.model.WorkoutExercise;
 import com.stanionutraul.repository.WorkoutExerciseRepository;
@@ -35,7 +37,8 @@ public class WorkoutExerciseService {
 
     public WorkoutExerciseResponseDTO addExercise(
             Integer workoutId,
-            WorkoutExerciseRequestDTO dto
+            WorkoutExerciseRequestDTO dto,
+            User currentUser
     ) {
         if (dto.getName() == null || dto.getName().trim().isEmpty()) {
             throw new RuntimeException("Exercise name is required");
@@ -47,6 +50,8 @@ public class WorkoutExerciseService {
 
         Workout workout = workoutRepository.findById(workoutId)
                 .orElseThrow(() -> new RuntimeException("Workout not found"));
+
+        validateWorkoutOwner(workout, currentUser);
 
         WorkoutExercise exercise = WorkoutExerciseMapper.toEntity(dto);
         exercise.setWorkout(workout);
@@ -64,10 +69,13 @@ public class WorkoutExerciseService {
 
     public WorkoutExerciseResponseDTO updateExercise(
             Integer id,
-            WorkoutExerciseRequestDTO dto
+            WorkoutExerciseRequestDTO dto,
+            User currentUser
     ) {
         WorkoutExercise exercise = workoutExerciseRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Exercise not found"));
+
+        validateWorkoutOwner(exercise.getWorkout(), currentUser);
 
         if (dto.getName() == null || dto.getName().trim().isEmpty()) {
             throw new RuntimeException("Exercise name is required");
@@ -86,11 +94,28 @@ public class WorkoutExerciseService {
         return WorkoutExerciseMapper.toDto(workoutExerciseRepository.save(exercise));
     }
 
-    public void deleteExercise(Integer id) {
-        if (!workoutExerciseRepository.existsById(id)) {
-            throw new RuntimeException("Exercise not found");
-        }
+    public void deleteExercise(Integer id, User currentUser) {
+        WorkoutExercise exercise = workoutExerciseRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Exercise not found"));
+
+        validateWorkoutOwner(exercise.getWorkout(), currentUser);
 
         workoutExerciseRepository.deleteById(id);
+    }
+
+    private void validateWorkoutOwner(Workout workout, User currentUser) {
+        if (currentUser.getRole() == Role.ADMIN) {
+            return;
+        }
+
+        if (currentUser.getRole() != Role.TRAINER) {
+            throw new RuntimeException("Only trainers can manage exercises");
+        }
+
+        if (workout == null ||
+                workout.getTrainer() == null ||
+                !workout.getTrainer().getId().equals(currentUser.getId())) {
+            throw new RuntimeException("You can only manage exercises from your own workouts");
+        }
     }
 }

@@ -136,6 +136,9 @@ public class SecurityConfiguration {
                         )
                         .hasAnyRole("TRAINER", "ADMIN")
 
+                        .requestMatchers("/api/v1/trainer/**")
+                        .hasAnyRole("TRAINER", "ADMIN")
+
                         .anyRequest()
                         .authenticated()
                 )

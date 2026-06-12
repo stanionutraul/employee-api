@@ -11,7 +11,6 @@ import com.stanionutraul.repository.WorkoutRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class WorkoutService {
@@ -19,7 +18,10 @@ public class WorkoutService {
     private final WorkoutRepository workoutRepository;
     private final UserRepository userRepository;
 
-    public WorkoutService(WorkoutRepository workoutRepository, UserRepository userRepository) {
+    public WorkoutService(
+            WorkoutRepository workoutRepository,
+            UserRepository userRepository
+    ) {
         this.workoutRepository = workoutRepository;
         this.userRepository = userRepository;
     }
@@ -31,20 +33,28 @@ public class WorkoutService {
                 .toList();
     }
 
-    public WorkoutResponseDTO insertWorkout(WorkoutRequestDTO dto) {
+    public WorkoutResponseDTO getWorkoutById(Integer id) {
+        Workout workout = workoutRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Workout not found"));
 
+        return WorkoutMapper.toDTO(workout);
+    }
+
+    public WorkoutResponseDTO insertWorkout(
+            WorkoutRequestDTO dto,
+            User currentUser
+    ) {
         Workout workout = WorkoutMapper.toEntity(dto);
 
-        if (dto.getTrainerId() != null) {
-
-            User trainer = userRepository.findById(dto.getTrainerId())
-                    .orElseThrow(() -> new RuntimeException("User not found"));
-
-            if (trainer.getRole() != Role.TRAINER) {
-                throw new RuntimeException("Selected user is not a trainer");
+        if (currentUser.getRole() == Role.TRAINER) {
+            workout.setTrainer(currentUser);
+        } else if (currentUser.getRole() == Role.ADMIN) {
+            if (dto.getTrainerId() != null) {
+                User trainer = getTrainer(dto.getTrainerId());
+                workout.setTrainer(trainer);
             }
-
-            workout.setTrainer(trainer);
+        } else {
+            throw new RuntimeException("Only trainers can create workouts");
         }
 
         Workout saved = workoutRepository.save(workout);
@@ -52,19 +62,15 @@ public class WorkoutService {
         return WorkoutMapper.toDTO(saved);
     }
 
-    public void deleteWorkout(Integer id) {
+    public WorkoutResponseDTO updateWorkout(
+            Integer id,
+            WorkoutRequestDTO dto,
+            User currentUser
+    ) {
         Workout workout = workoutRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Workout not found"));
 
-        workout.setArchived(true);
-
-        workoutRepository.save(workout);
-    }
-
-    public WorkoutResponseDTO updateWorkout(Integer id, WorkoutRequestDTO dto) {
-
-        Workout workout = workoutRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Workout not found"));
+        validateWorkoutOwner(workout, currentUser);
 
         workout.setName(dto.getName());
         workout.setDescription(dto.getDescription());
@@ -72,15 +78,8 @@ public class WorkoutService {
         workout.setDifficulty(dto.getDifficulty());
         workout.setCategory(dto.getCategory());
 
-        if (dto.getTrainerId() != null) {
-
-            User trainer = userRepository.findById(dto.getTrainerId())
-                    .orElseThrow(() -> new RuntimeException("User not found"));
-
-            if (trainer.getRole() != Role.TRAINER) {
-                throw new RuntimeException("Selected user is not a trainer");
-            }
-
+        if (currentUser.getRole() == Role.ADMIN && dto.getTrainerId() != null) {
+            User trainer = getTrainer(dto.getTrainerId());
             workout.setTrainer(trainer);
         }
 
@@ -89,11 +88,40 @@ public class WorkoutService {
         return WorkoutMapper.toDTO(updated);
     }
 
-    public WorkoutResponseDTO getWorkoutById(Integer id) {
-
+    public void deleteWorkout(Integer id, User currentUser) {
         Workout workout = workoutRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Workout not found"));
 
-        return WorkoutMapper.toDTO(workout);
+        validateWorkoutOwner(workout, currentUser);
+
+        workout.setArchived(true);
+
+        workoutRepository.save(workout);
+    }
+
+    private User getTrainer(Integer trainerId) {
+        User trainer = userRepository.findById(trainerId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (trainer.getRole() != Role.TRAINER) {
+            throw new RuntimeException("Selected user is not a trainer");
+        }
+
+        return trainer;
+    }
+
+    private void validateWorkoutOwner(Workout workout, User currentUser) {
+        if (currentUser.getRole() == Role.ADMIN) {
+            return;
+        }
+
+        if (currentUser.getRole() != Role.TRAINER) {
+            throw new RuntimeException("Only trainers can manage workouts");
+        }
+
+        if (workout.getTrainer() == null ||
+                !workout.getTrainer().getId().equals(currentUser.getId())) {
+            throw new RuntimeException("You can only manage your own workouts");
+        }
     }
 }
