@@ -33,6 +33,11 @@ public class AuthenticationController {
         return ResponseEntity.ok(authenticationService.verifyEmail(token));
     }
 
+    @PostMapping("/resend-verification")
+    public ResponseEntity<String> resendVerificationEmail(@RequestParam String email) {
+        return ResponseEntity.ok(authenticationService.resendVerificationEmail(email));
+    }
+
     @GetMapping("/me")
     public ResponseEntity<UserResponseDTO> me(Authentication authentication) {
 

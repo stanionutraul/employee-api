@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface WorkoutRepository extends JpaRepository<Workout,Integer> {
     List<Workout> findByArchivedFalse();
+
+    List<Workout> findByTrainerIdAndArchivedFalse(Integer trainerId);
 }

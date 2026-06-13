@@ -3,10 +3,15 @@ package com.stanionutraul.service;
 import com.stanionutraul.dto.ChangePasswordRequest;
 import com.stanionutraul.dto.UpdateProfileRequest;
 import com.stanionutraul.dto.UserProfileDTO;
+import com.stanionutraul.model.Role;
 import com.stanionutraul.model.User;
+import com.stanionutraul.repository.EmailVerificationTokenRepository;
 import com.stanionutraul.repository.UserRepository;
+import com.stanionutraul.repository.UserWorkoutRepository;
+import com.stanionutraul.repository.WorkoutRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserProfileService {
@@ -14,12 +19,22 @@ public class UserProfileService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    private final UserWorkoutRepository userWorkoutRepository;
+    private final EmailVerificationTokenRepository tokenRepository;
+    private final WorkoutRepository workoutRepository;
+
     public UserProfileService(
             UserRepository userRepository,
-            PasswordEncoder passwordEncoder
+            PasswordEncoder passwordEncoder,
+            UserWorkoutRepository userWorkoutRepository,
+            EmailVerificationTokenRepository tokenRepository,
+            WorkoutRepository workoutRepository
     ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.userWorkoutRepository = userWorkoutRepository;
+        this.tokenRepository = tokenRepository;
+        this.workoutRepository = workoutRepository;
     }
 
     public UserProfileDTO getProfile(User user) {
@@ -76,5 +91,28 @@ public class UserProfileService {
         }
 
         return dto;
+    }
+
+
+    @Transactional
+    public void resetProgress(User user) {
+        userWorkoutRepository.deleteByUserId(user.getId());
+    }
+
+    @Transactional
+    public void deleteAccount(User user) {
+        if (user.getRole() == Role.TRAINER) {
+            boolean hasActiveWorkouts = !workoutRepository
+                    .findByTrainerIdAndArchivedFalse(user.getId())
+                    .isEmpty();
+
+            if (hasActiveWorkouts) {
+                throw new RuntimeException("Trainers with active workouts cannot delete their account yet");
+            }
+        }
+
+        userWorkoutRepository.deleteByUserId(user.getId());
+        tokenRepository.deleteByUserId(user.getId());
+        userRepository.deleteById(user.getId());
     }
 }

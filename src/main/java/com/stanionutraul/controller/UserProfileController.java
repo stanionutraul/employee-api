@@ -47,4 +47,22 @@ public class UserProfileController {
 
         return ResponseEntity.noContent().build();
     }
+
+    @DeleteMapping("/progress")
+    public ResponseEntity<Void> resetProgress(Authentication authentication) {
+        User user = (User) authentication.getPrincipal();
+
+        userProfileService.resetProgress(user);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/account")
+    public ResponseEntity<Void> deleteAccount(Authentication authentication) {
+        User user = (User) authentication.getPrincipal();
+
+        userProfileService.deleteAccount(user);
+
+        return ResponseEntity.noContent().build();
+    }
 }

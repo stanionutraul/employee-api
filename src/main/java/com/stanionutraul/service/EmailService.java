@@ -1,9 +1,10 @@
 package com.stanionutraul.service;
 
+import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -15,22 +16,101 @@ public class EmailService {
     @Value("${spring.mail.username}")
     private String fromEmail;
 
-    public void sendVerificationEmail(String to, String name, String verificationUrl) {
-        SimpleMailMessage message = new SimpleMailMessage();
+    public void sendVerificationEmail(
+            String to,
+            String name,
+            String verificationUrl
+    ) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
 
-        message.setFrom(fromEmail);
-        message.setTo(to);
-        message.setSubject("Verify your Nexus Fit account");
+            MimeMessageHelper helper =
+                    new MimeMessageHelper(message, true, "UTF-8");
 
-        message.setText(
-                "Hi " + name + ",\n\n" +
-                        "Welcome to Nexus Fit!\n\n" +
-                        "Please verify your account by clicking this link:\n" +
-                        verificationUrl + "\n\n" +
-                        "This link expires in 24 hours.\n\n" +
-                        "Nexus Fit Team"
-        );
+            helper.setFrom(fromEmail);
+            helper.setTo(to);
+            helper.setSubject("Verify your Nexus Fit account");
 
-        mailSender.send(message);
+            String html = """
+                <div style="
+                    font-family: Arial, sans-serif;
+                    background:#0f172a;
+                    padding:40px;
+                    color:white;
+                ">
+                    <div style="
+                        max-width:600px;
+                        margin:auto;
+                        background:#111827;
+                        border-radius:20px;
+                        padding:40px;
+                    ">
+
+                        <h1 style="
+                            color:#8b5cf6;
+                            margin-bottom:20px;
+                        ">
+                            Welcome to Nexus Fit 💪
+                        </h1>
+
+                        <p style="font-size:16px;">
+                            Hi %s,
+                        </p>
+
+                        <p style="
+                            color:#cbd5e1;
+                            line-height:1.7;
+                        ">
+                            Thanks for creating your account.
+                            Please verify your email address to activate
+                            your Nexus Fit profile.
+                        </p>
+
+                        <div style="margin:35px 0;">
+                            <a href="%s"
+                               style="
+                                background:#8b5cf6;
+                                color:white;
+                                padding:14px 26px;
+                                text-decoration:none;
+                                border-radius:12px;
+                                font-weight:bold;
+                               ">
+                               Verify Email
+                            </a>
+                        </div>
+
+                        <p style="
+                            color:#94a3b8;
+                            font-size:14px;
+                        ">
+                            This verification link expires in 24 hours.
+                        </p>
+
+                        <hr style="
+                            border:none;
+                            border-top:1px solid #1e293b;
+                            margin:25px 0;
+                        ">
+
+                        <p style="
+                            color:#64748b;
+                            font-size:13px;
+                        ">
+                            Nexus Fit Team
+                        </p>
+
+                    </div>
+                </div>
+                """.formatted(name, verificationUrl);
+
+            helper.setText(html, true);
+
+            mailSender.send(message);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Failed to send verification email: " + e.getMessage(), e);
+        }
     }
 }

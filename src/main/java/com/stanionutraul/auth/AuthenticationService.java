@@ -32,10 +32,25 @@ public class AuthenticationService {
     @Value("${app.backend.url}")
     private String backendUrl;
 
+    @Value("${app.frontend.url}")
+    private String frontendUrl;
+
     public AuthenticationResponse register(RegisterRequest request) {
 
-        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new RuntimeException("Email already exists");
+        var existingUser = userRepository.findByEmail(request.getEmail());
+
+        if (existingUser.isPresent()) {
+            User user = existingUser.get();
+
+            if (user.isEmailVerified()) {
+                throw new RuntimeException("Email already exists");
+            }
+
+            resendVerificationEmail(user.getEmail());
+
+            return AuthenticationResponse.builder()
+                    .token(null)
+                    .build();
         }
 
         Role role = request.getRole();
@@ -64,7 +79,7 @@ public class AuthenticationService {
 
         tokenRepository.save(verificationToken);
 
-        String verificationUrl = backendUrl + "/api/v1/auth/verify?token=" + token;
+        String verificationUrl = frontendUrl + "/verify-email?token=" + token;
 
         emailService.sendVerificationEmail(
                 savedUser.getEmail(),
@@ -121,5 +136,34 @@ public class AuthenticationService {
         tokenRepository.save(verificationToken);
 
         return "Email verified successfully. You can now login.";
+    }
+
+    public String resendVerificationEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (user.isEmailVerified()) {
+            return "Email is already verified.";
+        }
+
+        String token = UUID.randomUUID().toString();
+
+        EmailVerificationToken verificationToken = new EmailVerificationToken();
+        verificationToken.setToken(token);
+        verificationToken.setUser(user);
+        verificationToken.setExpiresAt(LocalDateTime.now().plusHours(24));
+        verificationToken.setUsed(false);
+
+        tokenRepository.save(verificationToken);
+
+        String verificationUrl = frontendUrl + "/verify-email?token=" + token;
+
+        emailService.sendVerificationEmail(
+                user.getEmail(),
+                user.getName(),
+                verificationUrl
+        );
+
+        return "Verification email sent.";
     }
 }
