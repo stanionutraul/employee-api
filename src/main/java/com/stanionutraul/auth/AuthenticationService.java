@@ -1,6 +1,8 @@
 package com.stanionutraul.auth;
 
 import com.stanionutraul.config.JwtService;
+import com.stanionutraul.dto.ForgotPasswordRequest;
+import com.stanionutraul.dto.ResetPasswordRequest;
 import com.stanionutraul.model.EmailVerificationToken;
 import com.stanionutraul.model.Role;
 import com.stanionutraul.model.User;
@@ -14,7 +16,8 @@ import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
+import com.stanionutraul.model.PasswordResetToken;
+import com.stanionutraul.repository.PasswordResetTokenRepository;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -28,6 +31,8 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final EmailService emailService;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
+
 
     @Value("${app.backend.url}")
     private String backendUrl;
@@ -165,5 +170,60 @@ public class AuthenticationService {
         );
 
         return "Verification email sent.";
+    }
+    public String forgotPassword(ForgotPasswordRequest request) {
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!user.isEmailVerified()) {
+            throw new RuntimeException("Please verify your email first.");
+        }
+
+        String token = UUID.randomUUID().toString();
+
+        PasswordResetToken resetToken = new PasswordResetToken();
+        resetToken.setToken(token);
+        resetToken.setUser(user);
+        resetToken.setExpiresAt(LocalDateTime.now().plusMinutes(30));
+        resetToken.setUsed(false);
+
+        passwordResetTokenRepository.save(resetToken);
+
+        String resetUrl = frontendUrl + "/reset-password?token=" + token;
+
+        emailService.sendPasswordResetEmail(
+                user.getEmail(),
+                user.getName(),
+                resetUrl
+        );
+
+        return "Password reset email sent.";
+    }
+
+    public String resetPassword(ResetPasswordRequest request) {
+        if (request.getNewPassword() == null || request.getNewPassword().length() < 4) {
+            throw new RuntimeException("Password must be at least 4 characters");
+        }
+
+        PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(request.getToken())
+                .orElseThrow(() -> new RuntimeException("Invalid reset token"));
+
+        if (resetToken.isUsed()) {
+            throw new RuntimeException("Reset token already used");
+        }
+
+        if (resetToken.getExpiresAt().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("Reset token expired");
+        }
+
+        User user = resetToken.getUser();
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        resetToken.setUsed(true);
+
+        userRepository.save(user);
+        passwordResetTokenRepository.save(resetToken);
+
+        return "Password reset successfully.";
     }
 }

@@ -1,5 +1,7 @@
 package com.stanionutraul.auth;
 
+import com.stanionutraul.dto.ForgotPasswordRequest;
+import com.stanionutraul.dto.ResetPasswordRequest;
 import com.stanionutraul.dto.UserResponseDTO;
 import com.stanionutraul.model.User;
 import lombok.RequiredArgsConstructor;
@@ -55,5 +57,15 @@ public class AuthenticationController {
         );
 
         return ResponseEntity.ok(dto);
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<String> forgotPassword(@RequestBody ForgotPasswordRequest request) {
+        return ResponseEntity.ok(authenticationService.forgotPassword(request));
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordRequest request) {
+        return ResponseEntity.ok(authenticationService.resetPassword(request));
     }
 }

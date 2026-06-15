@@ -113,4 +113,101 @@ public class EmailService {
             throw new RuntimeException("Failed to send verification email: " + e.getMessage(), e);
         }
     }
+
+    public void sendPasswordResetEmail(
+            String to,
+            String name,
+            String resetUrl
+    ) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+
+            MimeMessageHelper helper =
+                    new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setFrom(fromEmail);
+            helper.setTo(to);
+            helper.setSubject("Reset your Nexus Fit password");
+
+            String html = """
+            <div style="
+                font-family: Arial, sans-serif;
+                background:#0f172a;
+                padding:40px;
+                color:white;
+            ">
+                <div style="
+                    max-width:600px;
+                    margin:auto;
+                    background:#111827;
+                    border-radius:20px;
+                    padding:40px;
+                ">
+
+                    <h1 style="
+                        color:#8b5cf6;
+                        margin-bottom:20px;
+                    ">
+                        Reset your password 🔐
+                    </h1>
+
+                    <p style="font-size:16px;">
+                        Hi %s,
+                    </p>
+
+                    <p style="
+                        color:#cbd5e1;
+                        line-height:1.7;
+                    ">
+                        We received a request to reset your Nexus Fit password.
+                        Click the button below to create a new password.
+                    </p>
+
+                    <div style="margin:35px 0;">
+                        <a href="%s"
+                           style="
+                            background:#8b5cf6;
+                            color:white;
+                            padding:14px 26px;
+                            text-decoration:none;
+                            border-radius:12px;
+                            font-weight:bold;
+                           ">
+                           Reset Password
+                        </a>
+                    </div>
+
+                    <p style="
+                        color:#94a3b8;
+                        font-size:14px;
+                    ">
+                        This password reset link expires in 30 minutes.
+                    </p>
+
+                    <hr style="
+                        border:none;
+                        border-top:1px solid #1e293b;
+                        margin:25px 0;
+                    ">
+
+                    <p style="
+                        color:#64748b;
+                        font-size:13px;
+                    ">
+                        Nexus Fit Team
+                    </p>
+
+                </div>
+            </div>
+            """.formatted(name, resetUrl);
+
+            helper.setText(html, true);
+
+            mailSender.send(message);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Failed to send password reset email: " + e.getMessage(), e);
+        }
+    }
 }
