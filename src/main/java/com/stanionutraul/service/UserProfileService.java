@@ -58,9 +58,7 @@ public class UserProfileService {
             throw new RuntimeException("Current password is required");
         }
 
-        if (request.getNewPassword() == null || request.getNewPassword().length() < 4) {
-            throw new RuntimeException("New password must be at least 4 characters");
-        }
+        validatePassword(request.getNewPassword());
 
         boolean matches = passwordEncoder.matches(
                 request.getCurrentPassword(),
@@ -114,5 +112,23 @@ public class UserProfileService {
         userWorkoutRepository.deleteByUserId(user.getId());
         tokenRepository.deleteByUserId(user.getId());
         userRepository.deleteById(user.getId());
+    }
+
+    private void validatePassword(String password) {
+        if (password == null || password.length() < 10) {
+            throw new RuntimeException("Password must be at least 10 characters");
+        }
+
+        if (!password.matches(".*[A-Z].*")) {
+            throw new RuntimeException("Password must contain at least one uppercase letter");
+        }
+
+        if (!password.matches(".*[a-z].*")) {
+            throw new RuntimeException("Password must contain at least one lowercase letter");
+        }
+
+        if (!password.matches(".*\\d.*")) {
+            throw new RuntimeException("Password must contain at least one number");
+        }
     }
 }

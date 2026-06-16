@@ -18,6 +18,15 @@ public class UserWorkoutMapper {
         dto.setId(userWorkout.getId());
         dto.setDate(userWorkout.getDate());
         dto.setCompleted(userWorkout.isCompleted());
+        dto.setCompleted(userWorkout.isCompleted());
+
+        if (userWorkout.getStatus() != null) {
+            dto.setStatus(userWorkout.getStatus().name());
+        } else if (userWorkout.isCompleted()) {
+            dto.setStatus("COMPLETED");
+        } else {
+            dto.setStatus("SCHEDULED");
+        }
 
         if (userWorkout.getUser() != null) {
             dto.setUserId(userWorkout.getUser().getId());

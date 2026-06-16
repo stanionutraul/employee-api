@@ -11,6 +11,8 @@ import com.stanionutraul.repository.UserRepository;
 import com.stanionutraul.repository.UserWorkoutRepository;
 import com.stanionutraul.repository.WorkoutRepository;
 import org.springframework.stereotype.Service;
+import com.stanionutraul.model.UserWorkoutStatus;
+import java.time.LocalDateTime;
 
 import javax.naming.ldap.PagedResultsControl;
 import java.util.List;
@@ -51,6 +53,8 @@ public class UserWorkoutService {
         UserWorkout userWorkout = UserWorkoutMapper.toEntity(dto);
         userWorkout.setUser(user);
         userWorkout.setWorkout(workout);
+        userWorkout.setStatus(UserWorkoutStatus.SCHEDULED);
+        userWorkout.setCompleted(false);
 
         return UserWorkoutMapper.toDto(userWorkoutRepository.save(userWorkout));
     }
@@ -92,8 +96,37 @@ public class UserWorkoutService {
                 .orElseThrow(() -> new RuntimeException("User workout not found"));
 
         userWorkout.setCompleted(true);
+        userWorkout.setStatus(UserWorkoutStatus.COMPLETED);
 
         return UserWorkoutMapper.toDto(userWorkoutRepository.save(userWorkout));
+    }
+
+    public UserWorkoutResponseDTO markMissed(Integer id) {
+        UserWorkout userWorkout = userWorkoutRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User workout not found"));
+
+        userWorkout.setCompleted(false);
+        userWorkout.setStatus(UserWorkoutStatus.MISSED);
+
+        return UserWorkoutMapper.toDto(userWorkoutRepository.save(userWorkout));
+    }
+
+    public List<UserWorkoutResponseDTO> getPendingReview(Integer userId) {
+        LocalDateTime reviewThreshold = LocalDateTime.now().minusHours(2);
+
+        return userWorkoutRepository.findByUserId(userId)
+                .stream()
+                .filter(w -> w.getStatus() == UserWorkoutStatus.SCHEDULED)
+                .filter(w -> w.getDate() != null && !w.getDate().isBlank())
+                .filter(w -> {
+                    try {
+                        return LocalDateTime.parse(w.getDate()).isBefore(reviewThreshold);
+                    } catch (Exception e) {
+                        return false;
+                    }
+                })
+                .map(UserWorkoutMapper::toDto)
+                .toList();
     }
 
 

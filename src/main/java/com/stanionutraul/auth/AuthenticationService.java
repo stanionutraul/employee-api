@@ -42,6 +42,7 @@ public class AuthenticationService {
 
     public AuthenticationResponse register(RegisterRequest request) {
 
+        validatePassword(request.getPassword());
         var existingUser = userRepository.findByEmail(request.getEmail());
 
         if (existingUser.isPresent()) {
@@ -201,9 +202,7 @@ public class AuthenticationService {
     }
 
     public String resetPassword(ResetPasswordRequest request) {
-        if (request.getNewPassword() == null || request.getNewPassword().length() < 4) {
-            throw new RuntimeException("Password must be at least 4 characters");
-        }
+        validatePassword(request.getNewPassword());
 
         PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(request.getToken())
                 .orElseThrow(() -> new RuntimeException("Invalid reset token"));
@@ -225,5 +224,22 @@ public class AuthenticationService {
         passwordResetTokenRepository.save(resetToken);
 
         return "Password reset successfully.";
+    }
+    private void validatePassword(String password) {
+        if (password == null || password.length() < 10) {
+            throw new RuntimeException("Password must be at least 10 characters");
+        }
+
+        if (!password.matches(".*[A-Z].*")) {
+            throw new RuntimeException("Password must contain at least one uppercase letter");
+        }
+
+        if (!password.matches(".*[a-z].*")) {
+            throw new RuntimeException("Password must contain at least one lowercase letter");
+        }
+
+        if (!password.matches(".*\\d.*")) {
+            throw new RuntimeException("Password must contain at least one number");
+        }
     }
 }

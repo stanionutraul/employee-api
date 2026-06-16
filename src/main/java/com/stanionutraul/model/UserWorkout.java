@@ -22,7 +22,19 @@ public class UserWorkout {
     @Column(nullable = false)
     private boolean completed = false;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private UserWorkoutStatus status = UserWorkoutStatus.SCHEDULED;
+
     public UserWorkout() {}
+
+    public UserWorkoutStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(UserWorkoutStatus status) {
+        this.status = status;
+    }
 
     public UserWorkout(Integer id, User user, Workout workout, String date) {
         this.id = id;

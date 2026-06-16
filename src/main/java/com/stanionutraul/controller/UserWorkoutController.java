@@ -53,4 +53,15 @@ public class UserWorkoutController {
     public UserWorkoutResponseDTO complete(@PathVariable Integer id) {
         return userWorkoutService.complete(id);
     }
+
+
+    @GetMapping("user/{userId}/pending-review")
+    public List<UserWorkoutResponseDTO> getPendingReview(@PathVariable Integer userId) {
+        return userWorkoutService.getPendingReview(userId);
+    }
+
+    @PutMapping("{id}/missed")
+    public UserWorkoutResponseDTO markMissed(@PathVariable Integer id) {
+        return userWorkoutService.markMissed(id);
+    }
 }
