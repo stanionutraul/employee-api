@@ -16,12 +16,13 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.context.annotation.Bean;
+
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
+
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -39,7 +40,7 @@ public class SecurityConfiguration {
                 // =========================
                 // CORS
                 // =========================
-                .cors(cors -> {})
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
                 // =========================
                 // CSRF
@@ -78,29 +79,24 @@ public class SecurityConfiguration {
                         // =========================
                         // WORKOUTS
                         // =========================
-
-                        // VIEW workouts
                         .requestMatchers(
                                 HttpMethod.GET,
                                 "/api/v1/workouts/**"
                         )
                         .hasAnyRole("USER", "TRAINER", "ADMIN")
 
-                        // CREATE workout
                         .requestMatchers(
                                 HttpMethod.POST,
                                 "/api/v1/workouts/**"
                         )
                         .hasAnyRole("TRAINER", "ADMIN")
 
-                        // UPDATE workout
                         .requestMatchers(
                                 HttpMethod.PUT,
                                 "/api/v1/workouts/**"
                         )
                         .hasAnyRole("TRAINER", "ADMIN")
 
-                        // DELETE workout
                         .requestMatchers(
                                 HttpMethod.DELETE,
                                 "/api/v1/workouts/**"
@@ -114,11 +110,14 @@ public class SecurityConfiguration {
                         .hasAnyRole("USER", "TRAINER", "ADMIN")
 
                         // =========================
-                        // EVERYTHING ELSE
+                        // PROFILE
                         // =========================
                         .requestMatchers("/api/v1/profile/**")
                         .authenticated()
 
+                        // =========================
+                        // WORKOUT EXERCISES
+                        // =========================
                         .requestMatchers(
                                 HttpMethod.GET,
                                 "/api/v1/workouts/*/exercises"
@@ -143,6 +142,9 @@ public class SecurityConfiguration {
                         )
                         .hasAnyRole("TRAINER", "ADMIN")
 
+                        // =========================
+                        // TRAINER AREA
+                        // =========================
                         .requestMatchers("/api/v1/trainer/**")
                         .hasAnyRole("TRAINER", "ADMIN")
 
@@ -174,14 +176,14 @@ public class SecurityConfiguration {
 
                 .build();
     }
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(List.of(
+        configuration.setAllowedOriginPatterns(List.of(
                 "http://localhost:5173",
-                "https://employee-frontend-plum-six.vercel.app",
-                "https://employee-frontend-64vi0mpwm-ionut67.vercel.app"
+                "https://*.vercel.app"
         ));
 
         configuration.setAllowedMethods(List.of(
@@ -193,6 +195,7 @@ public class SecurityConfiguration {
         ));
 
         configuration.setAllowedHeaders(List.of("*"));
+        configuration.setExposedHeaders(List.of("Authorization"));
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source =
