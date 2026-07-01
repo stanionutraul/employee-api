@@ -35,6 +35,11 @@ public class DataSeeder implements CommandLineRunner {
                 "maria.trainer@nexusfit.com"
         );
 
+        User demoUser = createUserIfMissing(
+                "Demo User",
+                "demo.user@nexusfit.com"
+        );
+
         createWorkoutIfMissing(
                 "Push Day",
                 "Perfect upper body push workout focused on chest, shoulders and triceps.",
@@ -208,6 +213,22 @@ public class DataSeeder implements CommandLineRunner {
 
             workoutExerciseRepository.save(exercise);
         }
+    }
+    private User createUserIfMissing(String name, String email) {
+
+        return userRepository.findByEmail(email)
+                .orElseGet(() -> {
+
+                    User user = new User();
+
+                    user.setName(name);
+                    user.setEmail(email);
+                    user.setPassword(passwordEncoder.encode("Password123"));
+                    user.setRole(Role.USER);
+                    user.setEmailVerified(true);
+
+                    return userRepository.save(user);
+                });
     }
 
     private record ExerciseSeed(
