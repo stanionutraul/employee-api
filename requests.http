@@ -14,6 +14,15 @@ Content-Type: application/json
 }
 
 ###
+POST https://employee-api-wnqq.onrender.com/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "alex.trainer@nexusfit.com",
+  "password": "Password123"
+}
+
+###
 
 ### Register TRAINER
 POST http://localhost:8080/api/v1/auth/register
@@ -267,6 +276,8 @@ Authorization: Bearer {{trainer_token}}
 }
 
 ###
+###
+
 
 ### Delete exercise
 DELETE http://localhost:8080/api/v1/workout-exercises/1
