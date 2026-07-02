@@ -9,7 +9,8 @@ import com.stanionutraul.model.User;
 import com.stanionutraul.repository.EmailVerificationTokenRepository;
 import com.stanionutraul.repository.UserRepository;
 import com.stanionutraul.service.EmailService;
-import jakarta.transaction.Transactional;
+//import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -41,6 +42,7 @@ public class AuthenticationService {
     @Value("${app.frontend.url}")
     private String frontendUrl;
 
+    @Transactional
     public AuthenticationResponse register(RegisterRequest request) {
 
         validatePassword(request.getPassword());
