@@ -35,12 +35,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         System.out.println("\n=== REQUEST ===");
         System.out.println("Path: " + path);
         System.out.println("Auth header: " + authHeader);
-
         if (
-                path.equals("/api/v1/auth/login") ||
-                        path.equals("/api/v1/auth/register")
+                "OPTIONS".equalsIgnoreCase(request.getMethod()) ||
+                        path.equals("/api/v1/auth/login") ||
+                        path.equals("/api/v1/auth/register") ||
+                        path.equals("/api/v1/auth/verify") ||
+                        path.equals("/api/v1/auth/resend-verification") ||
+                        path.equals("/api/v1/auth/forgot-password") ||
+                        path.equals("/api/v1/auth/reset-password")
         ) {
-            System.out.println("SKIP JWT FILTER (public auth endpoint)");
             filterChain.doFilter(request, response);
             return;
         }
