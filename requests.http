@@ -2,6 +2,16 @@
 ### 🔐 AUTH FLOW (SIMPLU)
 ### =========================
 
+
+POST https://employee-api-wnqq.onrender.com/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "name": "Live Test",
+  "email": "emailultau+live1@gmail.com",
+  "password": "Password123",
+  "role": "USER"
+}
 ### Register USER
 POST http://localhost:8080/api/v1/auth/register
 Content-Type: application/json

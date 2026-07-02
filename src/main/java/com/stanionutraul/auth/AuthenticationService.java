@@ -9,6 +9,7 @@ import com.stanionutraul.model.User;
 import com.stanionutraul.repository.EmailVerificationTokenRepository;
 import com.stanionutraul.repository.UserRepository;
 import com.stanionutraul.service.EmailService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -144,6 +145,7 @@ public class AuthenticationService {
         return "Email verified successfully. You can now login.";
     }
 
+    @Transactional
     public String resendVerificationEmail(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -151,6 +153,7 @@ public class AuthenticationService {
         if (user.isEmailVerified()) {
             return "Email is already verified.";
         }
+        tokenRepository.deleteByUserId(user.getId());
 
         String token = UUID.randomUUID().toString();
 
@@ -159,6 +162,7 @@ public class AuthenticationService {
         verificationToken.setUser(user);
         verificationToken.setExpiresAt(LocalDateTime.now().plusHours(24));
         verificationToken.setUsed(false);
+
 
         tokenRepository.save(verificationToken);
 
