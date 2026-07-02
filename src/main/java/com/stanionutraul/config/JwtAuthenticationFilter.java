@@ -35,18 +35,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         System.out.println("\n=== REQUEST ===");
         System.out.println("Path: " + path);
         System.out.println("Auth header: " + authHeader);
-        if (
-                "OPTIONS".equalsIgnoreCase(request.getMethod()) ||
-                        path.equals("/api/v1/auth/login") ||
-                        path.equals("/api/v1/auth/register") ||
-                        path.equals("/api/v1/auth/verify") ||
-                        path.equals("/api/v1/auth/resend-verification") ||
-                        path.equals("/api/v1/auth/forgot-password") ||
-                        path.equals("/api/v1/auth/reset-password")
-        ) {
-            filterChain.doFilter(request, response);
-            return;
-        }
+//        if (
+//                "OPTIONS".equalsIgnoreCase(request.getMethod()) ||
+//                        path.equals("/api/v1/auth/login") ||
+//                        path.equals("/api/v1/auth/register") ||
+//                        path.equals("/api/v1/auth/verify") ||
+//                        path.equals("/api/v1/auth/resend-verification") ||
+//                        path.equals("/api/v1/auth/forgot-password") ||
+//                        path.equals("/api/v1/auth/reset-password")
+//        ) {
+//            filterChain.doFilter(request, response);
+//            return;
+//        }
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             System.out.println("NO TOKEN -> request goes as anonymous");
@@ -91,5 +91,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getServletPath();
+
+        return "OPTIONS".equalsIgnoreCase(request.getMethod())
+                || path.startsWith("/api/v1/auth/");
     }
 }
