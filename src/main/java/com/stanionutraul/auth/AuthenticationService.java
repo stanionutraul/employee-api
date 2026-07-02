@@ -90,12 +90,15 @@ public class AuthenticationService {
 
         String verificationUrl = frontendUrl + "/verify-email?token=" + token;
 
-        emailService.sendVerificationEmail(
-                savedUser.getEmail(),
-                savedUser.getName(),
-                verificationUrl
-        );
-
+        try {
+            emailService.sendVerificationEmail(
+                    savedUser.getEmail(),
+                    savedUser.getName(),
+                    verificationUrl
+            );
+        } catch (Exception e) {
+            System.out.println("EMAIL SEND FAILED: " + e.getMessage());
+        }
         return AuthenticationResponse.builder()
                 .token(null)
                 .build();
@@ -171,11 +174,15 @@ public class AuthenticationService {
 
         String verificationUrl = frontendUrl + "/verify-email?token=" + token;
 
-        emailService.sendVerificationEmail(
-                user.getEmail(),
-                user.getName(),
-                verificationUrl
-        );
+        try {
+            emailService.sendVerificationEmail(
+                    user.getEmail(),
+                    user.getName(),
+                    verificationUrl
+            );
+        } catch (Exception e) {
+            System.out.println("EMAIL SEND FAILED: " + e.getMessage());
+        }
 
         return "Verification email sent.";
     }

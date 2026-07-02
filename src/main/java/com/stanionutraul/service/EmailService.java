@@ -1,117 +1,62 @@
 package com.stanionutraul.service;
 
-import jakarta.mail.internet.MimeMessage;
+import com.resend.Resend;
+import com.resend.services.emails.model.CreateEmailOptions;
+import com.resend.services.emails.model.CreateEmailResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class EmailService {
 
-    private final JavaMailSender mailSender;
+    @Value("${resend.api.key}")
+    private String resendApiKey;
 
-    @Value("${spring.mail.username}")
-    private String fromEmail;
+    private static final String FROM_EMAIL =
+            "Nexus Fit <onboarding@resend.dev>";
 
     public void sendVerificationEmail(
             String to,
             String name,
             String verificationUrl
     ) {
-        try {
-            MimeMessage message = mailSender.createMimeMessage();
-
-            MimeMessageHelper helper =
-                    new MimeMessageHelper(message, true, "UTF-8");
-
-            helper.setFrom(fromEmail);
-            helper.setTo(to);
-            helper.setSubject("Verify your Nexus Fit account");
-
-            String html = """
-                <div style="
-                    font-family: Arial, sans-serif;
-                    background:#0f172a;
-                    padding:40px;
-                    color:white;
-                ">
-                    <div style="
-                        max-width:600px;
-                        margin:auto;
-                        background:#111827;
-                        border-radius:20px;
-                        padding:40px;
-                    ">
-
-                        <h1 style="
-                            color:#8b5cf6;
-                            margin-bottom:20px;
-                        ">
+        String html = """
+                <div style="font-family: Arial, sans-serif; background:#0f172a; padding:40px; color:white;">
+                    <div style="max-width:600px; margin:auto; background:#111827; border-radius:20px; padding:40px;">
+                        <h1 style="color:#8b5cf6; margin-bottom:20px;">
                             Welcome to Nexus Fit 💪
                         </h1>
 
-                        <p style="font-size:16px;">
-                            Hi %s,
-                        </p>
+                        <p style="font-size:16px;">Hi %s,</p>
 
-                        <p style="
-                            color:#cbd5e1;
-                            line-height:1.7;
-                        ">
+                        <p style="color:#cbd5e1; line-height:1.7;">
                             Thanks for creating your account.
-                            Please verify your email address to activate
-                            your Nexus Fit profile.
+                            Please verify your email address to activate your Nexus Fit profile.
                         </p>
 
                         <div style="margin:35px 0;">
                             <a href="%s"
-                               style="
-                                background:#8b5cf6;
-                                color:white;
-                                padding:14px 26px;
-                                text-decoration:none;
-                                border-radius:12px;
-                                font-weight:bold;
-                               ">
+                               style="background:#8b5cf6; color:white; padding:14px 26px; text-decoration:none; border-radius:12px; font-weight:bold;">
                                Verify Email
                             </a>
                         </div>
 
-                        <p style="
-                            color:#94a3b8;
-                            font-size:14px;
-                        ">
+                        <p style="color:#94a3b8; font-size:14px;">
                             This verification link expires in 24 hours.
                         </p>
 
-                        <hr style="
-                            border:none;
-                            border-top:1px solid #1e293b;
-                            margin:25px 0;
-                        ">
+                        <hr style="border:none; border-top:1px solid #1e293b; margin:25px 0;">
 
-                        <p style="
-                            color:#64748b;
-                            font-size:13px;
-                        ">
+                        <p style="color:#64748b; font-size:13px;">
                             Nexus Fit Team
                         </p>
-
                     </div>
                 </div>
                 """.formatted(name, verificationUrl);
 
-            helper.setText(html, true);
-
-            mailSender.send(message);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("Failed to send verification email: " + e.getMessage(), e);
-        }
+        sendEmail(to, "Verify your Nexus Fit account", html);
     }
 
     public void sendPasswordResetEmail(
@@ -119,95 +64,61 @@ public class EmailService {
             String name,
             String resetUrl
     ) {
-        try {
-            MimeMessage message = mailSender.createMimeMessage();
+        String html = """
+                <div style="font-family: Arial, sans-serif; background:#0f172a; padding:40px; color:white;">
+                    <div style="max-width:600px; margin:auto; background:#111827; border-radius:20px; padding:40px;">
+                        <h1 style="color:#8b5cf6; margin-bottom:20px;">
+                            Reset your password 🔐
+                        </h1>
 
-            MimeMessageHelper helper =
-                    new MimeMessageHelper(message, true, "UTF-8");
+                        <p style="font-size:16px;">Hi %s,</p>
 
-            helper.setFrom(fromEmail);
-            helper.setTo(to);
-            helper.setSubject("Reset your Nexus Fit password");
+                        <p style="color:#cbd5e1; line-height:1.7;">
+                            We received a request to reset your Nexus Fit password.
+                            Click the button below to create a new password.
+                        </p>
 
-            String html = """
-            <div style="
-                font-family: Arial, sans-serif;
-                background:#0f172a;
-                padding:40px;
-                color:white;
-            ">
-                <div style="
-                    max-width:600px;
-                    margin:auto;
-                    background:#111827;
-                    border-radius:20px;
-                    padding:40px;
-                ">
+                        <div style="margin:35px 0;">
+                            <a href="%s"
+                               style="background:#8b5cf6; color:white; padding:14px 26px; text-decoration:none; border-radius:12px; font-weight:bold;">
+                               Reset Password
+                            </a>
+                        </div>
 
-                    <h1 style="
-                        color:#8b5cf6;
-                        margin-bottom:20px;
-                    ">
-                        Reset your password 🔐
-                    </h1>
+                        <p style="color:#94a3b8; font-size:14px;">
+                            This password reset link expires in 30 minutes.
+                        </p>
 
-                    <p style="font-size:16px;">
-                        Hi %s,
-                    </p>
+                        <hr style="border:none; border-top:1px solid #1e293b; margin:25px 0;">
 
-                    <p style="
-                        color:#cbd5e1;
-                        line-height:1.7;
-                    ">
-                        We received a request to reset your Nexus Fit password.
-                        Click the button below to create a new password.
-                    </p>
-
-                    <div style="margin:35px 0;">
-                        <a href="%s"
-                           style="
-                            background:#8b5cf6;
-                            color:white;
-                            padding:14px 26px;
-                            text-decoration:none;
-                            border-radius:12px;
-                            font-weight:bold;
-                           ">
-                           Reset Password
-                        </a>
+                        <p style="color:#64748b; font-size:13px;">
+                            Nexus Fit Team
+                        </p>
                     </div>
-
-                    <p style="
-                        color:#94a3b8;
-                        font-size:14px;
-                    ">
-                        This password reset link expires in 30 minutes.
-                    </p>
-
-                    <hr style="
-                        border:none;
-                        border-top:1px solid #1e293b;
-                        margin:25px 0;
-                    ">
-
-                    <p style="
-                        color:#64748b;
-                        font-size:13px;
-                    ">
-                        Nexus Fit Team
-                    </p>
-
                 </div>
-            </div>
-            """.formatted(name, resetUrl);
+                """.formatted(name, resetUrl);
 
-            helper.setText(html, true);
+        sendEmail(to, "Reset your Nexus Fit password", html);
+    }
 
-            mailSender.send(message);
+    private void sendEmail(String to, String subject, String html) {
+        try {
+            Resend resend = new Resend(resendApiKey);
+
+            CreateEmailOptions params = CreateEmailOptions.builder()
+                    .from(FROM_EMAIL)
+                    .to(to)
+                    .subject(subject)
+                    .html(html)
+                    .build();
+
+            CreateEmailResponse response = resend.emails().send(params);
+
+            System.out.println("Email sent with Resend ID: " + response.getId());
 
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RuntimeException("Failed to send password reset email: " + e.getMessage(), e);
+            throw new RuntimeException("Failed to send email with Resend: " + e.getMessage(), e);
         }
     }
 }
