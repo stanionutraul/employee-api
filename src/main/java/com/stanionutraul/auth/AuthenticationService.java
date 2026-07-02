@@ -155,7 +155,8 @@ public class AuthenticationService {
         if (user.isEmailVerified()) {
             return "Email is already verified.";
         }
-        tokenRepository.deleteByUserId(user.getId());
+        tokenRepository.deleteAll(tokenRepository.findByUserId(user.getId()));
+        tokenRepository.flush();
 
         String token = UUID.randomUUID().toString();
 
